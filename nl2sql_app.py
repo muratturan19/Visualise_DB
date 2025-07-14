@@ -58,16 +58,16 @@ def ask_llm(question, schema, model):
     return json.loads(content)
 
 def execute_sql(conn, sql):
+    """Run the SQL and print the query and first rows for debugging."""
     df = pd.read_sql_query(sql, conn)
-    # Log the SQL query and first 5 rows of the resulting dataframe
-    print("[SQL QUERY]", sql)
-    # Printing only the first 5 rows keeps the log concise
-    print(df.head())
-    # Example log:
-    # [SQL QUERY] SELECT * FROM Calisanlar LIMIT 10
-    #     id     isim  soyisim
-    # 0    1   Ahmet  Yilmaz
-    # 1    2  Mehmet  Kaya
+    # Explicit logging so API callers can see exactly what was run
+    print("[SQL]:", sql)
+    # Convert first 5 rows to a list of dicts for readable output
+    rows = df.head().to_dict(orient="records")
+    print("[Rows]:", rows)
+    # Example output:
+    # [SQL]: SELECT * FROM Calisanlar LIMIT 2
+    # [Rows]: [{"id": 1, "isim": "Ahmet"}, {"id": 2, "isim": "Mehmet"}]
     return df
 
 def display_result(df, chart_type, x=None, y=None):
