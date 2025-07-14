@@ -1,4 +1,9 @@
 import { useState } from 'react'
+
+// Normalise Turkish text by trimming whitespace and applying locale aware lower case
+function normalizeInput(text: string): string {
+  return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('tr-TR')
+}
 import DataTable from './components/DataTable'
 import ChartView from './components/ChartView'
 import HistoryList, { type HistoryItem } from './components/HistoryList'
@@ -17,8 +22,9 @@ function App() {
     setError('')
     setLoading(true)
     try {
-      const res = await queryDatabase(question)
-      const item: HistoryItem = { question, ...res }
+      const normalizedQuestion = normalizeInput(question)
+      const res = await queryDatabase(normalizedQuestion)
+      const item: HistoryItem = { question: normalizedQuestion, ...res }
       setResult(item)
       setHistory([item, ...history.slice(0, 9)])
     } catch (err: any) {
@@ -34,7 +40,7 @@ function App() {
       <form onSubmit={handleSubmit}>
         <textarea
           value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          onChange={(e) => setQuestion(normalizeInput(e.target.value))}
           placeholder="Enter your question in Turkish or English"
         />
         <button type="submit" disabled={loading || !question.trim()}>
