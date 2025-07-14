@@ -1,6 +1,8 @@
 import { useState } from 'react'
 
-// Normalise Turkish text by trimming whitespace and applying locale aware lower case
+// Normalise Turkish text by trimming whitespace and applying locale aware
+// lowercase. This is performed on submit only so the user can freely type
+// spaces while editing the query.
 function normalizeInput(text: string): string {
   return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('tr-TR')
 }
@@ -42,7 +44,7 @@ function App() {
       <form onSubmit={handleSubmit}>
         <textarea
           value={question}
-          onChange={(e) => setQuestion(normalizeInput(e.target.value))}
+          onChange={(e) => setQuestion(e.target.value)}
           placeholder="Enter your question in Turkish or English"
         />
         <button type="submit" disabled={loading || !question.trim()}>
