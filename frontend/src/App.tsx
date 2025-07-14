@@ -7,6 +7,7 @@ function normalizeInput(text: string): string {
 import DataTable from './components/DataTable'
 import ChartView from './components/ChartView'
 import HistoryList, { type HistoryItem } from './components/HistoryList'
+import ProgressBar from './components/ProgressBar'
 import { queryDatabase } from './api'
 import './App.css'
 
@@ -47,6 +48,12 @@ function App() {
           {loading ? 'Loading...' : 'Ask'}
         </button>
       </form>
+      {loading && (
+        <div className="loading">
+          <p>Rapor hazırlanıyor...</p>
+          <ProgressBar />
+        </div>
+      )}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {result && (
         <div className="results">

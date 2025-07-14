@@ -54,3 +54,4 @@ The backend should respond with:
 }
 ```
 The frontend displays the SQL, renders the table or chart using the provided data, and keeps a history of recent queries.
+While the query runs, the UI shows a short progress indicator below the form.
