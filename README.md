@@ -2,6 +2,8 @@
 
 This repository contains a demo SQLite database (`demo_sirket.db`) and a simple Python application for querying it with natural language.
 
+The interface fully supports Turkish input. Questions are normalised by trimming whitespace and applying Turkish-aware lowercase conversion to help with common typing mistakes.
+
 ## Setup
 1. Install dependencies:
    ```bash

@@ -10,6 +10,7 @@ export interface QueryResponse {
   data: any[]
 }
 
+// Question should already be normalised before calling this function
 export async function queryDatabase(question: string): Promise<QueryResponse> {
   const res = await fetch('/api/query', {
     method: 'POST',

@@ -6,6 +6,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import openai
 from dotenv import load_dotenv
+import re
+
+def normalize_turkish_text(text: str) -> str:
+    """Return a cleaned version of the user input for Turkish compatibility."""
+    text = text.strip()
+    text = re.sub(r"\s+", " ", text)
+    # `casefold` is more robust than lower() for Turkish specific chars
+    text = text.casefold()
+    return text
 
 # Path to the database
 DB_PATH = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
@@ -35,7 +44,8 @@ def ask_llm(question, schema, model):
         "If a chart would better represent the answer, set chart_type to one of bar, line, or scatter "
         "and specify which columns should be used for x and y. "
         "Otherwise set chart_type to table. "
-        "Respond in JSON with keys: sql, chart_type, x, y."
+        "Respond in JSON with keys: sql, chart_type, x, y. "
+        "Türkçe dil ve yazım hatalarını dikkate al."
     )
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
     response = openai.chat.completions.create(
@@ -90,9 +100,12 @@ def main():
 
     print("Ask me about the company database. Type 'exit' to quit.")
     while True:
-        question = input('> ').strip()
-        if question.lower() in {'exit', 'quit'}:
+        question_raw = input('> ')
+        question_raw = question_raw.strip()
+        if question_raw.casefold() in {'exit', 'quit'}:
             break
+        # Normalize Turkish input to reduce user-side mistakes
+        question = normalize_turkish_text(question_raw)
         try:
             instruction = ask_llm(question, schema, model)
             sql = instruction.get('sql')
