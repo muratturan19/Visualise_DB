@@ -2,7 +2,7 @@ import os
 import sqlite3
 import json
 import openai
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ValidationError
 from typing import Any
@@ -72,7 +72,7 @@ class QueryRequest(BaseModel):
 
 
 @app.post("/api/query")
-def query_database(req: Any):
+def query_database(req: Any = Body(...)):
     # Log raw payload for debugging purposes
     print("[API] Received payload:", req)
     # Reject array payloads early with a clear message
