@@ -47,6 +47,13 @@ export default function ChartView({ data, chartType, x, y }: Props) {
     ],
   }
 
+  // Log how chart data will be rendered
+  console.log('[CHART] labels:', labels)
+  console.log('[CHART] dataset data:', values)
+  // Example output:
+  // [CHART] labels: ['Ocak', 'Şubat', 'Mart']
+  // [CHART] dataset data: [120, 150, 90]
+
   if (chartType === 'bar') return <Bar data={chartData} />
   if (chartType === 'line') return <Line data={chartData} />
   if (chartType === 'scatter') {
@@ -58,6 +65,9 @@ export default function ChartView({ data, chartType, x, y }: Props) {
         },
       ],
     }
+    console.log('[CHART] scatter dataset:', scatterData.datasets[0].data)
+    // Example output:
+    // [CHART] scatter dataset: [{ x: 'Ocak', y: 120 }, { x: 'Şubat', y: 150 }]
     return <Scatter data={scatterData} />
   }
 
