@@ -23,9 +23,13 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-conn = sqlite3.connect(nl2sql_app.DB_PATH)
-cursor = conn.cursor()
-schema = nl2sql_app.get_schema(cursor)
+# Load the database schema once at startup and use a fresh
+# SQLite connection for each request. Using a connection per
+# request avoids cross-thread errors when the FastAPI server
+# handles requests in different worker threads.
+with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
+    _cursor = _conn.cursor()
+    schema = nl2sql_app.get_schema(_cursor)
 
 class QueryRequest(BaseModel):
     question: str
@@ -39,8 +43,11 @@ def query_database(req: QueryRequest):
         chart_type = instruction.get('chart_type', 'table')
         x = instruction.get('x')
         y = instruction.get('y')
-        df = nl2sql_app.execute_sql(conn, sql)
-        data = df.to_dict(orient='records')
+        # Open a new connection for this request so the connection
+        # is created and used within the same thread.
+        with sqlite3.connect(nl2sql_app.DB_PATH) as conn:
+            df = nl2sql_app.execute_sql(conn, sql)
+            data = df.to_dict(orient='records')
         return {
             'sql': sql,
             'chart_type': chart_type,
