@@ -4,7 +4,8 @@ import json
 import openai
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from typing import Any
 from dotenv import load_dotenv
 import nl2sql_app
 
@@ -52,8 +53,24 @@ class QueryRequest(BaseModel):
     question: str
 
 @app.post('/api/query')
-def query_database(req: QueryRequest):
-    question = nl2sql_app.normalize_turkish_text(req.question)
+def query_database(req: Any):
+    # Log raw payload for debugging purposes
+    print("[API] Received payload:", req)
+    # Reject array payloads early with a clear message
+    if not isinstance(req, dict):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "JSON body must be a single object like {'question': '...'},"
+                " arrays are not accepted."
+            ),
+        )
+    try:
+        query = QueryRequest(**req)
+    except ValidationError as ve:
+        raise HTTPException(status_code=422, detail=str(ve))
+
+    question = nl2sql_app.normalize_turkish_text(query.question)
     try:
         instruction = nl2sql_app.ask_llm(question, schema, model)
         sql = instruction.get('sql')

@@ -13,6 +13,8 @@ export interface QueryResponse {
 
 // Question should already be normalised before calling this function
 export async function queryDatabase(question: string): Promise<QueryResponse> {
+  // Debug log of the exact payload being sent
+  console.log('POST /api/query payload:', { question })
   const res = await fetch('/api/query', {
     method: 'POST',
     headers: {
