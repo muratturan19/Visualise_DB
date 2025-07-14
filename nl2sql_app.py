@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import openai
+from dotenv import load_dotenv
 
 # Path to the database
 DB_PATH = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
@@ -25,7 +26,7 @@ def get_schema(cursor):
     SCHEMA_CACHE = '\n'.join(schema_lines)
     return SCHEMA_CACHE
 
-def ask_llm(question, schema):
+def ask_llm(question, schema, model):
     """Use OpenAI to translate a question into SQL and chart instructions."""
     system_prompt = (
         "You are a data analyst expert in SQL. "
@@ -38,7 +39,7 @@ def ask_llm(question, schema):
     )
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
     response = openai.chat.completions.create(
-        model="gpt-4-turbo",
+        model=model,
         messages=[{"role": "system", "content": system_prompt},
                  {"role": "user", "content": user_prompt}],
         temperature=0
@@ -73,10 +74,15 @@ def display_result(df, chart_type, x=None, y=None):
     plt.show()
 
 def main():
+    load_dotenv()
     api_key = os.getenv('OPENAI_API_KEY')
+    model = os.getenv('OPENAI_MODEL', 'gpt-4-turbo')
+    repo_url = os.getenv('REPO_URL')
     if not api_key:
         raise RuntimeError('Please set the OPENAI_API_KEY environment variable.')
     openai.api_key = api_key
+    if repo_url:
+        print(f'Using repository: {repo_url}')
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -88,7 +94,7 @@ def main():
         if question.lower() in {'exit', 'quit'}:
             break
         try:
-            instruction = ask_llm(question, schema)
+            instruction = ask_llm(question, schema, model)
             sql = instruction.get('sql')
             chart_type = instruction.get('chart_type', 'table')
             x = instruction.get('x')
