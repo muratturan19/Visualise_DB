@@ -28,6 +28,7 @@ function App() {
       const item: HistoryItem = { question: normalizedQuestion, ...res }
       setResult(item)
       setHistory([item, ...history.slice(0, 9)])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message)
     } finally {

@@ -23,6 +23,7 @@ ChartJS.register(
 )
 
 interface Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[]
   chartType: 'bar' | 'line' | 'scatter'
   x: string
@@ -48,8 +49,8 @@ export default function ChartView({ data, chartType, x, y }: Props) {
   }
 
   // Log how chart data will be rendered
-  console.log('[CHART] labels:', labels)
-  console.log('[CHART] dataset data:', values)
+  console.log('Chart labels:', labels)
+  console.log('Chart values:', values)
   // Example output:
   // [CHART] labels: ['Ocak', 'Şubat', 'Mart']
   // [CHART] dataset data: [120, 150, 90]

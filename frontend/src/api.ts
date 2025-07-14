@@ -7,6 +7,7 @@ export interface QueryResponse {
   chart_type: 'table' | 'bar' | 'line' | 'scatter'
   x?: string
   y?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[]
 }
 
@@ -23,5 +24,8 @@ export async function queryDatabase(question: string): Promise<QueryResponse> {
     const text = await res.text()
     throw new Error(text || 'API error')
   }
-  return res.json()
+  const data = await res.json()
+  // Debug log: inspect API response as soon as we receive it
+  console.log('API response:', data)
+  return data
 }

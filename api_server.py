@@ -8,6 +8,23 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import nl2sql_app
 
+
+def debug_check_fields(rows, x=None, y=None):
+    """Print debug info about presence of expected fields in the first rows."""
+    expected = [f for f in (x, y) if f]
+    if not expected:
+        return
+    for idx, row in enumerate(rows[:5]):
+        for field in expected:
+            if field not in row:
+                match = next((k for k in row.keys() if k.lower() == field.lower()), None)
+                if match:
+                    print(
+                        f"[DEBUG] Field name mismatch in row {idx}: expected '{field}', found '{match}'"
+                    )
+                else:
+                    print(f"[DEBUG] Missing field '{field}' in row {idx}: {row}")
+
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 model = os.getenv('OPENAI_MODEL', 'gpt-4-turbo')
@@ -48,13 +65,17 @@ def query_database(req: QueryRequest):
         with sqlite3.connect(nl2sql_app.DB_PATH) as conn:
             df = nl2sql_app.execute_sql(conn, sql)
             data = df.to_dict(orient='records')
-        return {
+        debug_check_fields(data, x, y)
+        response = {
             'sql': sql,
             'chart_type': chart_type,
             'x': x,
             'y': y,
             'data': data,
         }
+        # Log the full API response for transparency
+        print("[API RESPONSE]:", json.dumps(response, ensure_ascii=False))
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
