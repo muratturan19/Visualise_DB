@@ -5,12 +5,14 @@ This repository contains a demo SQLite database (`demo_sirket.db`) and a simple 
 ## Setup
 1. Install dependencies:
    ```bash
-   pip install pandas matplotlib seaborn openai
+   pip install -r requirements.txt
    ```
-2. Set your OpenAI API key in the environment:
+2. Copy the example environment file and fill in your details:
    ```bash
-   export OPENAI_API_KEY=your-key
+   cp .env.example .env
+   # edit .env with your values
    ```
+   The `.env` file should define `OPENAI_API_KEY`, `OPENAI_MODEL` and `REPO_URL`.
 
 ## Usage
 Run the interactive application:
