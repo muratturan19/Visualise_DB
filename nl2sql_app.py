@@ -59,6 +59,15 @@ def ask_llm(question, schema, model):
 
 def execute_sql(conn, sql):
     df = pd.read_sql_query(sql, conn)
+    # Log the SQL query and first 5 rows of the resulting dataframe
+    print("[SQL QUERY]", sql)
+    # Printing only the first 5 rows keeps the log concise
+    print(df.head())
+    # Example log:
+    # [SQL QUERY] SELECT * FROM Calisanlar LIMIT 10
+    #     id     isim  soyisim
+    # 0    1   Ahmet  Yilmaz
+    # 1    2  Mehmet  Kaya
     return df
 
 def display_result(df, chart_type, x=None, y=None):
