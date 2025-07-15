@@ -37,6 +37,19 @@ export default function ChartView({ data, chartType, x, y }: Props) {
 
   const labels = data.map((d) => d[x])
 
+  // Access potential unit fields if present in the first row
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const unitSource = data[0] as any
+  const unit =
+    unitSource.birim ||
+    unitSource.para_birim ||
+    unitSource.currency ||
+    unitSource.doviz
+  const numberFormatter = new Intl.NumberFormat('tr-TR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
   // Determine which columns to plot on the y axis. Handle comma separated
   // lists or fallback to any numeric columns found in the result set.
   let yKeys = Array.isArray(y) ? y : y.split(',').map((s) => s.trim())
@@ -59,6 +72,24 @@ export default function ChartView({ data, chartType, x, y }: Props) {
     plugins: {
       legend: { position: 'bottom' as const },
       title: { display: true, text: yKeys.join(' vs ') },
+      tooltip: {
+        callbacks: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          label: (ctx: any) => {
+            const value = ctx.parsed.y ?? ctx.parsed
+            const formatted = numberFormatter.format(value)
+            return `${ctx.dataset.label || ''}: ${formatted}${unit ? ' ' + unit : ''}`
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          callback: (val: string | number) =>
+            numberFormatter.format(Number(val)) + (unit ? ' ' + unit : ''),
+        },
+      },
     },
   }
 
