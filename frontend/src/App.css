@@ -100,11 +100,6 @@ th, td {
   text-align: left;
 }
 
-pre.sql {
-  white-space: pre-wrap;
-  background: #f7f7f7;
-  padding: 0.5rem;
-}
 
 .loading {
   margin-top: 1rem;

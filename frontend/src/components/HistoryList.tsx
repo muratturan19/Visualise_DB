@@ -20,7 +20,6 @@ export default function HistoryList({ items, onSelect }: Props) {
       {items.map((it, idx) => (
         <div key={idx} className="history-item" onClick={() => onSelect(it)}>
           <p className="question">{it.question}</p>
-          <pre className="sql">{it.sql}</pre>
         </div>
       ))}
     </div>
