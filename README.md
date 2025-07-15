@@ -58,9 +58,10 @@ The backend should respond with:
   "sql": "SELECT ...",                 // SQL that was executed
   "chart_type": "table"|"bar"|"line"|"scatter",
   "x": "columnName",                  // optional, for charts
-  "y": "columnName",                  // optional, for charts
+  "y": "columnName" | ["col1", "col2"], // single or multiple series
   "data": [ { "col": "value" }, ... ] // result rows
 }
 ```
-The frontend displays the SQL, renders the table or chart using the provided data, and keeps a history of recent queries.
+The frontend displays the SQL, renders the table or chart using the provided data, and keeps a history of recent queries. If the `y` field
+contains multiple column names, each numeric column is shown as a separate series in the chart.
 While the query runs, the UI shows a short progress indicator below the form.
