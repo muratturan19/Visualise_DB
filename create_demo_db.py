@@ -2,10 +2,15 @@ import sqlite3
 from faker import Faker
 import random
 from datetime import datetime, timedelta
+import os
+from nl2sql_app import DB_PATH
 
 fake = Faker('tr_TR')
 
-conn = sqlite3.connect('demo_sirket.db')
+# Ensure the database directory exists and open a connection using the same
+# path as nl2sql_app.DB_PATH.
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
 # Temel tabloları oluştur
@@ -276,4 +281,4 @@ for _ in range(8000):
 conn.commit()
 conn.close()
 
-print("Veritabanı başarıyla oluşturuldu: demo_sirket.db")
+print(f"Veritabanı başarıyla oluşturuldu: {DB_PATH}")
