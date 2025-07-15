@@ -71,8 +71,6 @@ function App() {
           {error && <p style={{ color: 'red' }}>{error}</p>}
           {result && (
             <div className="card results">
-              <h3>SQL</h3>
-              <pre className="sql">{result.sql}</pre>
               {result.visuals.map((vis, idx) => (
                 <div key={idx} className="visual-block">
                   {vis.type === 'table' ? (
