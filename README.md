@@ -44,17 +44,25 @@ python api_server.py
 The server listens on `http://localhost:8000`. Ensure that both `/api/query` and
 `/api/schema` are reachable when running the React frontend.
 
-`GET /api/schema` returns a simple mapping of tables and columns:
+`GET /api/schema` returns the list of tables and their columns:
 
 ```json
 {
-  "Calisanlar": [
-    {"name": "id", "type": "INTEGER"},
-    {"name": "isim", "type": "TEXT"}
-  ],
-  "Satislar": [
-    {"name": "id", "type": "INTEGER"},
-    {"name": "tarih", "type": "DATE"}
+  "tables": [
+    {
+      "name": "Calisanlar",
+      "columns": [
+        {"name": "id", "type": "INTEGER"},
+        {"name": "isim", "type": "TEXT"}
+      ]
+    },
+    {
+      "name": "Satislar",
+      "columns": [
+        {"name": "id", "type": "INTEGER"},
+        {"name": "tarih", "type": "DATE"}
+      ]
+    }
   ]
 }
 ```

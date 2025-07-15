@@ -9,15 +9,25 @@ interface Props {
 export default function SchemaExplorer({ onSelect }: Props) {
   const [schema, setSchema] = useState<SchemaTable[] | null>(null)
   const [filter, setFilter] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetchSchema()
       .then((data: SchemaResponse) => setSchema(data.tables))
-      .catch((err) => console.error(err))
+      .catch((err) => {
+        console.error(err)
+        setFailed(true)
+      })
+      .finally(() => setLoading(false))
   }, [])
 
-  if (!schema) {
+  if (loading) {
     return <div>Loading schema...</div>
+  }
+
+  if (failed || !schema) {
+    return null
   }
 
   const filtered = schema.map((tbl) => ({
