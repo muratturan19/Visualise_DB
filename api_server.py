@@ -7,7 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import nl2sql_app
-from field_mapping import to_tech, to_friendly, TECH_TO_FRIENDLY
+from field_mapping import (
+    to_tech,
+    to_friendly,
+    TECH_TO_FRIENDLY,
+    friendly_name,
+    apply_friendly_labels,
+)
 
 
 def debug_check_fields(rows, x=None, y=None):
@@ -65,7 +71,8 @@ app.add_middleware(
 with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     _cursor = _conn.cursor()
     schema = nl2sql_app.get_schema(_cursor)
-    schema_details = nl2sql_app.get_schema_details(_cursor)
+    raw_schema_details = nl2sql_app.get_schema_details(_cursor)
+    schema_details = apply_friendly_labels(raw_schema_details)
     # Build a structured list for the /api/schema endpoint
     # Only table and column names/types are returned to keep the
     # payload small.  Foreign key information is available from the
@@ -73,17 +80,15 @@ with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     schema_overview = {"tables": []}
     for table in schema_details["tables"]:
         table_entry = {"name": table["name"], "columns": []}
-        tbl_label = TECH_TO_FRIENDLY.get(table["name"])
-        if tbl_label and tbl_label != table["name"]:
-            table_entry["friendly"] = tbl_label
+        if "friendly" in table:
+            table_entry["friendly"] = table["friendly"]
 
         for col in table["columns"]:
-            col_entry = {"name": col["name"], "type": col["type"]}
+            col_entry = {"name": col["name"], "type": col.get("type")}
             if "fk" in col:
                 col_entry["fk"] = col["fk"]
-            col_label = TECH_TO_FRIENDLY.get(col["name"])
-            if col_label and col_label != col["name"]:
-                col_entry["friendly"] = col_label
+            if "friendly" in col:
+                col_entry["friendly"] = col["friendly"]
             table_entry["columns"].append(col_entry)
 
         schema_overview["tables"].append(table_entry)
@@ -122,6 +127,13 @@ async def query_database(req: QueryRequest = Body(...)):
             vtype = vis.get("type", "table")
             if vtype != "table":
                 debug_check_fields(raw_data, vis.get("x"), vis.get("y"))
+            if "x" in vis:
+                vis["x"] = friendly_name(vis["x"])
+            if "y" in vis:
+                if isinstance(vis["y"], list):
+                    vis["y"] = [friendly_name(y) for y in vis["y"]]
+                else:
+                    vis["y"] = friendly_name(vis["y"])
             vis["data"] = data
 
         response = {"sql": sql, "visuals": visuals}
