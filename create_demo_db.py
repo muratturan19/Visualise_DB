@@ -37,7 +37,8 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Urunler (
     isim TEXT,
     kategori TEXT,
     birim TEXT,
-    birim_fiyat REAL
+    birim_fiyat REAL,
+    w_carpani REAL
 )''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS Musteriler (
@@ -63,7 +64,9 @@ cur.execute('''CREATE TABLE IF NOT EXISTS SatinAlma (
     tedarikci_id INTEGER,
     tarih DATE,
     miktar INTEGER,
+    birim TEXT,
     toplam_tutar REAL,
+    para_birimi TEXT,
     FOREIGN KEY (urun_id) REFERENCES Urunler(id),
     FOREIGN KEY (tedarikci_id) REFERENCES Tedarikciler(id)
 )''')
@@ -72,6 +75,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Stoklar (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     urun_id INTEGER,
     miktar INTEGER,
+    birim TEXT,
     depo TEXT,
     guncelleme_tarihi DATE,
     FOREIGN KEY (urun_id) REFERENCES Urunler(id)
@@ -84,7 +88,9 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Satislar (
     calisan_id INTEGER,
     tarih DATE,
     adet INTEGER,
+    birim TEXT,
     toplam_fiyat REAL,
+    para_birimi TEXT,
     FOREIGN KEY (urun_id) REFERENCES Urunler(id),
     FOREIGN KEY (musteri_id) REFERENCES Musteriler(id),
     FOREIGN KEY (calisan_id) REFERENCES Calisanlar(id)
@@ -97,6 +103,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Uretim (
     calisan_id INTEGER,
     vardiya TEXT,
     adet INTEGER,
+    birim TEXT,
     hata_sayisi INTEGER,
     FOREIGN KEY (urun_id) REFERENCES Urunler(id),
     FOREIGN KEY (calisan_id) REFERENCES Calisanlar(id)
@@ -137,6 +144,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Finans (
     tip TEXT,
     tarih DATE,
     tutar REAL,
+    para_birimi TEXT,
     aciklama TEXT,
     ilgili_tablo TEXT,
     ilgili_id INTEGER
@@ -149,16 +157,21 @@ departmanlar = ['Üretim', 'Satış', 'İnsan Kaynakları', 'Finans', 'Satınalm
 for isim in departmanlar:
     cur.execute('INSERT INTO Departmanlar (isim) VALUES (?)', (isim,))
 
-# Ürünler
+# Ürünler ve birim bilgisini sakla
 urun_list = []
+urun_birim = {}
 for _ in range(250):
     isim = fake.word().capitalize() + ' ' + fake.word().capitalize() + ' ' + str(random.randint(100, 9999))
     kategori = fake.word().capitalize()
     birim = random.choice(['Adet', 'Kg', 'Litre', 'Koli', 'Paket'])
     birim_fiyat = round(random.uniform(10, 500), 2)
-    cur.execute('INSERT INTO Urunler (isim, kategori, birim, birim_fiyat) VALUES (?, ?, ?, ?)',
-                (isim, kategori, birim, birim_fiyat))
-    urun_list.append(cur.lastrowid)
+    w_carpani = round(random.uniform(0.001, 0.01), 4)
+    cur.execute(
+        'INSERT INTO Urunler (isim, kategori, birim, birim_fiyat, w_carpani) VALUES (?, ?, ?, ?, ?)',
+        (isim, kategori, birim, birim_fiyat, w_carpani))
+    urun_id = cur.lastrowid
+    urun_list.append(urun_id)
+    urun_birim[urun_id] = birim
 
 # Müşteriler
 for _ in range(2000):
@@ -193,15 +206,19 @@ for _ in range(1000):
                 (isim, soyisim, departman_id, pozisyon, ise_giris, maas, dogum_tarihi, email))
 
 # Satışlar
+para_birimleri = ['TL', 'USD', 'EUR']
 for _ in range(12000):
     urun_id = random.randint(1, 250)
     musteri_id = random.randint(1, 2000)
     calisan_id = random.randint(1, 1000)
     tarih = fake.date_between(start_date='-4y', end_date='today')
     adet = random.randint(1, 100)
+    birim = urun_birim.get(urun_id)
     toplam_fiyat = adet * float(random.uniform(10, 500))
-    cur.execute('INSERT INTO Satislar (urun_id, musteri_id, calisan_id, tarih, adet, toplam_fiyat) VALUES (?, ?, ?, ?, ?, ?)',
-                (urun_id, musteri_id, calisan_id, tarih, adet, toplam_fiyat))
+    para_birimi = random.choice(para_birimleri)
+    cur.execute(
+        'INSERT INTO Satislar (urun_id, musteri_id, calisan_id, tarih, adet, birim, toplam_fiyat, para_birimi) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        (urun_id, musteri_id, calisan_id, tarih, adet, birim, toplam_fiyat, para_birimi))
 
 # Üretim
 vardiyalar = ['Gündüz', 'Gece', 'Akşam']
@@ -211,9 +228,11 @@ for _ in range(14000):
     calisan_id = random.randint(1, 1000)
     vardiya = random.choice(vardiyalar)
     adet = random.randint(10, 1000)
+    birim = urun_birim.get(urun_id)
     hata_sayisi = random.randint(0, 10)
-    cur.execute('INSERT INTO Uretim (urun_id, tarih, calisan_id, vardiya, adet, hata_sayisi) VALUES (?, ?, ?, ?, ?, ?)',
-                (urun_id, tarih, calisan_id, vardiya, adet, hata_sayisi))
+    cur.execute(
+        'INSERT INTO Uretim (urun_id, tarih, calisan_id, vardiya, adet, birim, hata_sayisi) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (urun_id, tarih, calisan_id, vardiya, adet, birim, hata_sayisi))
 
 # Satınalma
 for _ in range(4000):
@@ -221,17 +240,22 @@ for _ in range(4000):
     tedarikci_id = random.randint(1, 300)
     tarih = fake.date_between(start_date='-4y', end_date='today')
     miktar = random.randint(10, 1000)
+    birim = urun_birim.get(urun_id)
     toplam_tutar = miktar * float(random.uniform(10, 500))
-    cur.execute('INSERT INTO SatinAlma (urun_id, tedarikci_id, tarih, miktar, toplam_tutar) VALUES (?, ?, ?, ?, ?)',
-                (urun_id, tedarikci_id, tarih, miktar, toplam_tutar))
+    para_birimi = random.choice(para_birimleri)
+    cur.execute(
+        'INSERT INTO SatinAlma (urun_id, tedarikci_id, tarih, miktar, birim, toplam_tutar, para_birimi) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (urun_id, tedarikci_id, tarih, miktar, birim, toplam_tutar, para_birimi))
 
 # Stoklar
 for urun_id in range(1, 251):
     miktar = random.randint(0, 5000)
+    birim = urun_birim.get(urun_id)
     depo = fake.city()
     guncelleme_tarihi = fake.date_between(start_date='-1y', end_date='today')
-    cur.execute('INSERT INTO Stoklar (urun_id, miktar, depo, guncelleme_tarihi) VALUES (?, ?, ?, ?)',
-                (urun_id, miktar, depo, guncelleme_tarihi))
+    cur.execute(
+        'INSERT INTO Stoklar (urun_id, miktar, birim, depo, guncelleme_tarihi) VALUES (?, ?, ?, ?, ?)',
+        (urun_id, miktar, birim, depo, guncelleme_tarihi))
 
 # Fazla Mesai
 nedenler = ['Üretim Artışı', 'Arıza', 'Yıllık Stok', 'Acil Sipariş', 'Proje Teslimi']
@@ -272,11 +296,26 @@ for _ in range(8000):
     tip = random.choice(tipler)
     tarih = fake.date_between(start_date='-4y', end_date='today')
     tutar = round(random.uniform(1000, 100000), 2)
+    para_birimi = random.choice(para_birimleri)
     aciklama = fake.sentence(nb_words=6)
     ilgili_tablo = random.choice(['Satislar', 'SatinAlma', 'Maas', 'Genel'])
     ilgili_id = random.randint(1, 1000)
-    cur.execute('INSERT INTO Finans (tip, tarih, tutar, aciklama, ilgili_tablo, ilgili_id) VALUES (?, ?, ?, ?, ?, ?)',
-                (tip, tarih, tutar, aciklama, ilgili_tablo, ilgili_id))
+    cur.execute(
+        'INSERT INTO Finans (tip, tarih, tutar, para_birimi, aciklama, ilgili_tablo, ilgili_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (tip, tarih, tutar, para_birimi, aciklama, ilgili_tablo, ilgili_id))
+
+# Her ay için ekstra Genel Gider kaydı ekle
+start = datetime.today().replace(day=1) - timedelta(days=4*365)
+start = start.replace(day=1)
+for i in range(48):
+    year = start.year + (start.month - 1 + i) // 12
+    month = (start.month - 1 + i) % 12 + 1
+    tarih = datetime(year, month, 1).date()
+    tutar = round(random.uniform(20000, 50000), 2)
+    para_birimi = 'TL'
+    cur.execute(
+        'INSERT INTO Finans (tip, tarih, tutar, para_birimi, aciklama, ilgili_tablo, ilgili_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ('Genel Gider', tarih, tutar, para_birimi, 'Aylık genel gider', 'Genel', None))
 
 conn.commit()
 conn.close()
