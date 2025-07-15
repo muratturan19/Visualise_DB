@@ -37,11 +37,11 @@ npm run dev
 This starts the development server on `http://localhost:5173`.
 
 ### Running the backend API
-Start the FastAPI server which provides the `/api/query` endpoint used by the frontend:
+Start the FastAPI server which provides the `/api/query` endpoint used by the frontend and exposes `GET /api/schema` for schema information:
 ```bash
 python api_server.py
 ```
-The server listens on `http://localhost:8000`.
+The server listens on `http://localhost:8000`. Ensure that both `/api/query` and `/api/schema` are reachable when running the React frontend.
 
 The Vite development server is configured to proxy `/api` requests to this backend, so the React app can communicate with it without additional configuration.
 
