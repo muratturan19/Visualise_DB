@@ -72,12 +72,21 @@ with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     # more detailed /api/schema/details endpoint.
     schema_overview = {"tables": []}
     for table in schema_details["tables"]:
-        friendly_table = TECH_TO_FRIENDLY.get(table["name"], table["name"])
-        columns = [
-            {"name": TECH_TO_FRIENDLY.get(col["name"], col["name"]), "type": col["type"]}
-            for col in table["columns"]
-        ]
-        schema_overview["tables"].append({"name": friendly_table, "columns": columns})
+        table_entry = {"name": table["name"], "columns": []}
+        tbl_label = TECH_TO_FRIENDLY.get(table["name"])
+        if tbl_label and tbl_label != table["name"]:
+            table_entry["friendly"] = tbl_label
+
+        for col in table["columns"]:
+            col_entry = {"name": col["name"], "type": col["type"]}
+            if "fk" in col:
+                col_entry["fk"] = col["fk"]
+            col_label = TECH_TO_FRIENDLY.get(col["name"])
+            if col_label and col_label != col["name"]:
+                col_entry["friendly"] = col_label
+            table_entry["columns"].append(col_entry)
+
+        schema_overview["tables"].append(table_entry)
 
 
 class QueryRequest(BaseModel):

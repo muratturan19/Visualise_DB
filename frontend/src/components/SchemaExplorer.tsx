@@ -30,12 +30,18 @@ export default function SchemaExplorer({ onSelect }: Props) {
     return null
   }
 
-  const filtered = schema.map((tbl) => ({
-    ...tbl,
-    columns: (tbl.columns ?? []).filter((c) =>
-      (tbl.name + '.' + c.name).toLowerCase().includes(filter.toLowerCase())
-    ),
-  }))
+  const filtered = schema.map((tbl) => {
+    const tblLabel = tbl.friendly ?? tbl.name
+    return {
+      ...tbl,
+      columns: (tbl.columns ?? []).filter((c) => {
+        const searchTarget = (
+          tblLabel + '.' + (c.friendly ?? c.name)
+        ).toLowerCase()
+        return searchTarget.includes(filter.toLowerCase())
+      }),
+    }
+  })
 
   return (
     <div className="schema-explorer">
@@ -49,7 +55,7 @@ export default function SchemaExplorer({ onSelect }: Props) {
       <div className="schema-list">
         {filtered.map((tbl) => (
           <div key={tbl.name} className="table-block">
-            <strong>{tbl.name}</strong>
+            <strong>{tbl.friendly ?? tbl.name}</strong>
             <ul>
               {(tbl.columns ?? []).map((col) => (
                 <li
@@ -58,7 +64,7 @@ export default function SchemaExplorer({ onSelect }: Props) {
                   title={col.fk ? `FK -> ${col.fk.table}.${col.fk.column}` : ''}
                   onClick={() => onSelect(`${tbl.name}.${col.name}`)}
                 >
-                  {col.name}
+                  {col.friendly ?? col.name}
                   {col.fk && <span className="fk-ind">*</span>}
                 </li>
               ))}
