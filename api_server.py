@@ -79,30 +79,25 @@ async def query_database(req: QueryRequest = Body(...)):
     question = nl2sql_app.normalize_turkish_text(req.question)
     try:
         instruction = nl2sql_app.ask_llm(question, schema, model)
+        if "error" in instruction:
+            raise HTTPException(status_code=400, detail=instruction["error"])
+
         sql = instruction.get("sql")
-        chart_type = instruction.get("chart_type", "table")
-        x = instruction.get("x")
-        y = instruction.get("y")
-        # LLM responses may occasionally provide a list of columns. Use only the
-        # first item so the rest of the pipeline receives a single column name.
-        if isinstance(x, (list, tuple)):
-            print(f"[WARN] Received list for x axis: {x}. Using first value.")
-            x = x[0] if x else None
-        if isinstance(y, (list, tuple)):
-            print(f"[INFO] Received list for y axis: {y}")
+        visuals = instruction.get("visuals", [])
+
         # Open a new connection for this request so the connection
         # is created and used within the same thread.
         with sqlite3.connect(nl2sql_app.DB_PATH) as conn:
             df = nl2sql_app.execute_sql(conn, sql)
             data = df.to_dict(orient="records")
-        debug_check_fields(data, x, y)
-        response = {
-            "sql": sql,
-            "chart_type": chart_type,
-            "x": x,
-            "y": y,
-            "data": data,
-        }
+
+        for vis in visuals:
+            vtype = vis.get("type", "table")
+            if vtype != "table":
+                debug_check_fields(data, vis.get("x"), vis.get("y"))
+            vis["data"] = data
+
+        response = {"sql": sql, "visuals": visuals}
         # Log the full API response for transparency
         print("[API RESPONSE]:", json.dumps(response, ensure_ascii=False))
         return response
