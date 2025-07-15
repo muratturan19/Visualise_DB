@@ -65,6 +65,13 @@ with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     _cursor = _conn.cursor()
     schema = nl2sql_app.get_schema(_cursor)
     schema_details = nl2sql_app.get_schema_details(_cursor)
+    # Build a simple mapping of table -> columns for the /api/schema endpoint
+    schema_overview = {}
+    for table in schema_details["tables"]:
+        schema_overview[table["name"]] = [
+            {"name": col["name"], "type": col["type"]}
+            for col in table["columns"]
+        ]
 
 
 class QueryRequest(BaseModel):
@@ -112,8 +119,14 @@ async def query_database(req: QueryRequest = Body(...)):
 
 
 @app.get("/api/schema")
+async def get_schema_endpoint():
+    """Return a simple mapping of table names to column info."""
+    return schema_overview
+
+
+@app.get("/api/schema/details")
 async def get_schema_details_endpoint():
-    """Return cached schema details for the frontend schema explorer."""
+    """Return full schema details including foreign keys."""
     return schema_details
 
 
