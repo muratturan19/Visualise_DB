@@ -40,11 +40,13 @@ export async function queryDatabase(question: string, context: string[] = []): P
 export interface SchemaField {
   name: string
   type: string
+  friendly?: string
   fk?: { table: string; column: string }
 }
 
 export interface SchemaTable {
   name: string
+  friendly?: string
   columns: SchemaField[]
 }
 
