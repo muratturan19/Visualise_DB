@@ -41,7 +41,26 @@ Start the FastAPI server which provides the `/api/query` endpoint used by the fr
 ```bash
 python api_server.py
 ```
-The server listens on `http://localhost:8000`. Ensure that both `/api/query` and `/api/schema` are reachable when running the React frontend.
+The server listens on `http://localhost:8000`. Ensure that both `/api/query` and
+`/api/schema` are reachable when running the React frontend.
+
+`GET /api/schema` returns a simple mapping of tables and columns:
+
+```json
+{
+  "Calisanlar": [
+    {"name": "id", "type": "INTEGER"},
+    {"name": "isim", "type": "TEXT"}
+  ],
+  "Satislar": [
+    {"name": "id", "type": "INTEGER"},
+    {"name": "tarih", "type": "DATE"}
+  ]
+}
+```
+
+For more detailed information including foreign keys you can call
+`GET /api/schema/details`.
 
 The Vite development server is configured to proxy `/api` requests to this backend, so the React app can communicate with it without additional configuration.
 
