@@ -59,13 +59,15 @@ def ask_llm(question, schema, model):
     """Use OpenAI to translate a question into SQL and chart instructions."""
     system_prompt = (
         "You are a data analyst expert in SQL. "
-        "Translate the user's question into an SQLite compatible SQL query. "
-        "Use the provided database schema. "
-        "If a chart would better represent the answer, set chart_type to one of bar, line, or scatter "
-        "and specify which column should be used for x and which column or columns should be used for y. "
-        "When multiple series are requested, return all y columns as a JSON array. "
-        "Otherwise set chart_type to table. "
-        "Respond only with JSON using keys: sql, chart_type, x, y. "
+        "Translate the user's question into an SQLite compatible SQL query using the provided schema. "
+        "Decide whether the user wants a chart, a table or both. "
+        "For charts specify the type (bar, line or scatter) and which column is used for x and which column or columns are used for y. "
+        "When multiple series are requested return all y columns as a JSON array. "
+        "Return your answer strictly as JSON with the keys: sql and visuals. "
+        "visuals must be an array of objects where each object has at minimum a 'type' field. "
+        "For tables use {'type': 'table'}. For charts use {'type': 'bar', 'x': 'col', 'y': ['c1','c2']}. "
+        "If both a chart and a table are needed include two objects in the visuals array. "
+        "If a requested table does not exist respond with an 'error' key explaining the issue in one sentence. "
         "Türkçe dil ve yazım hatalarını dikkate al."
     )
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
@@ -100,9 +102,17 @@ def display_result(df, chart_type, x=None, y=None):
     plt.figure(figsize=(10, 6))
 
     if chart_type == 'bar':
-        sns.barplot(data=df, x=x, y=y)
+        if isinstance(y, (list, tuple)):
+            df_melt = df.melt(id_vars=[x], value_vars=list(y), var_name='series', value_name='value')
+            sns.barplot(data=df_melt, x=x, y='value', hue='series')
+        else:
+            sns.barplot(data=df, x=x, y=y)
     elif chart_type == 'line':
-        sns.lineplot(data=df, x=x, y=y, marker='o')
+        if isinstance(y, (list, tuple)):
+            df_melt = df.melt(id_vars=[x], value_vars=list(y), var_name='series', value_name='value')
+            sns.lineplot(data=df_melt, x=x, y='value', hue='series', marker='o')
+        else:
+            sns.lineplot(data=df, x=x, y=y, marker='o')
     elif chart_type == 'scatter':
         sns.scatterplot(data=df, x=x, y=y)
     else:
@@ -138,13 +148,18 @@ def main():
         question = normalize_turkish_text(question_raw)
         try:
             instruction = ask_llm(question, schema, model)
+            if 'error' in instruction:
+                print('LLM error:', instruction['error'])
+                continue
             sql = instruction.get('sql')
-            chart_type = instruction.get('chart_type', 'table')
-            x = instruction.get('x')
-            y = instruction.get('y')
+            visuals = instruction.get('visuals', [])
             print("Executing SQL:\n", sql)
             df = execute_sql(conn, sql)
-            display_result(df, chart_type, x, y)
+            for vis in visuals:
+                vtype = vis.get('type', 'table')
+                x = vis.get('x')
+                y = vis.get('y')
+                display_result(df, vtype, x, y)
         except ValueError as e:
             print('LLM JSON error:', e)
         except Exception as e:

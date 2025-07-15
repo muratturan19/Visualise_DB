@@ -64,16 +64,20 @@ function App() {
         <div className="card results">
           <h3>SQL</h3>
           <pre className="sql">{result.sql}</pre>
-          {result.chart_type === 'table' ? (
-            <DataTable data={result.data} />
-          ) : (
-            <ChartView
-              data={result.data}
-              chartType={result.chart_type}
-              x={result.x!}
-              y={result.y!}
-            />
-          )}
+          {result.visuals.map((vis, idx) => (
+            <div key={idx} className="visual-block">
+              {vis.type === 'table' ? (
+                <DataTable data={vis.data} />
+              ) : (
+                <ChartView
+                  data={vis.data}
+                  chartType={vis.type}
+                  x={vis.x!}
+                  y={vis.y!}
+                />
+              )}
+            </div>
+          ))}
         </div>
       )}
       <div className="card">

@@ -52,16 +52,76 @@ The frontend expects a backend endpoint `POST /api/query` with the following JSO
   "question": "..."   // user question in Turkish or English
 }
 ```
-The backend should respond with:
+The backend responds with the executed SQL and one or more visualisation objects:
 ```json
 {
-  "sql": "SELECT ...",                 // SQL that was executed
-  "chart_type": "table"|"bar"|"line"|"scatter",
-  "x": "columnName",                  // optional, for charts
-  "y": "columnName" | ["col1", "col2"], // single or multiple series
-  "data": [ { "col": "value" }, ... ] // result rows
+  "sql": "SELECT ...",
+  "visuals": [
+    {
+      "type": "table",
+      "data": [ { "col": "value" }, ... ]
+    },
+    {
+      "type": "bar",                // or line / scatter
+      "x": "columnName",
+      "y": ["col1", "col2"],       // single or multiple series
+      "data": [ { "col1": 1 }, ... ]
+    }
+  ]
 }
 ```
-The frontend displays the SQL, renders the table or chart using the provided data, and keeps a history of recent queries. If the `y` field
-contains multiple column names, each numeric column is shown as a separate series in the chart.
-While the query runs, the UI shows a short progress indicator below the form.
+The frontend renders each visual in order, allowing any combination of tables and charts. When multiple series are returned, each numeric column appears as a separate series in the chart. While the query runs, the UI shows a short progress indicator below the form.
+
+### Example prompts
+
+#### Multi-series chart
+
+Prompt:
+
+```
+Show production quantity, worker count, and stock amount per year on the same chart.
+```
+
+Possible JSON response:
+
+```json
+{
+  "sql": "SELECT strftime('%Y', U.tarih) AS year, SUM(U.adet) AS production_qty, COUNT(DISTINCT C.id) AS worker_count, SUM(S.miktar) AS stock_amount FROM Uretim U JOIN Calisanlar C ON U.calisan_id = C.id LEFT JOIN Stoklar S ON U.urun_id = S.urun_id GROUP BY year ORDER BY year",
+  "visuals": [
+    {
+      "type": "line",
+      "x": "year",
+      "y": ["production_qty", "worker_count", "stock_amount"],
+      "data": [ { "year": "2022", "production_qty": 100, "worker_count": 50, "stock_amount": 30 } ]
+    }
+  ]
+}
+```
+
+#### Chart and table together
+
+Prompt:
+
+```
+For each customer, show orders as both a chart and a table.
+```
+
+Possible JSON response:
+
+```json
+{
+  "sql": "SELECT M.isim AS customer, COUNT(S.id) AS orders FROM Musteriler M JOIN Satislar S ON M.id = S.musteri_id GROUP BY customer ORDER BY orders DESC",
+  "visuals": [
+    {
+      "type": "table",
+      "data": [ { "customer": "ACME", "orders": 42 } ]
+    },
+    {
+      "type": "bar",
+      "x": "customer",
+      "y": ["orders"],
+      "data": [ { "customer": "ACME", "orders": 42 } ]
+    }
+  ]
+}
+```
