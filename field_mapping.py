@@ -85,3 +85,30 @@ def to_tech(question: str) -> str:
 def to_friendly(record: dict) -> dict:
     """Return a copy of ``record`` with keys mapped to friendly labels."""
     return {TECH_TO_FRIENDLY.get(k, k): v for k, v in record.items()}
+
+
+def friendly_name(name: str) -> str:
+    """Return the friendly label for ``name`` if available."""
+    return TECH_TO_FRIENDLY.get(name, name)
+
+
+def apply_friendly_labels(schema: dict) -> dict:
+    """Return schema copy with added ``friendly`` keys for tables and columns."""
+    result = {"tables": []}
+    for table in schema.get("tables", []):
+        t_entry = {"name": table["name"], "columns": []}
+        tbl_label = TECH_TO_FRIENDLY.get(table["name"])
+        if tbl_label and tbl_label != table["name"]:
+            t_entry["friendly"] = tbl_label
+
+        for col in table.get("columns", []):
+            c_entry = {"name": col["name"], "type": col.get("type")}
+            if "fk" in col:
+                c_entry["fk"] = col["fk"]
+            col_label = TECH_TO_FRIENDLY.get(col["name"])
+            if col_label and col_label != col["name"]:
+                c_entry["friendly"] = col_label
+            t_entry["columns"].append(c_entry)
+
+        result["tables"].append(t_entry)
+    return result
