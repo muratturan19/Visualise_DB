@@ -27,7 +27,7 @@ interface Props {
   data: any[]
   chartType: 'bar' | 'line' | 'scatter'
   x: string
-  y: string
+  y: string | string[]
 }
 
 export default function ChartView({ data, chartType, x, y }: Props) {

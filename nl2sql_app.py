@@ -21,6 +21,26 @@ DB_PATH = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
 
 SCHEMA_CACHE = None
 
+
+def parse_llm_response(content: str) -> dict:
+    """Return JSON object extracted from raw LLM string.
+
+    Logs the raw value for debugging and attempts to parse the first JSON
+    object found. Raises ``ValueError`` if parsing fails.
+    """
+    print("[LLM RAW RESPONSE]", content)
+    text = content.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", text, re.S)
+        if match:
+            try:
+                return json.loads(match.group(0))
+            except json.JSONDecodeError:
+                pass
+    raise ValueError("Invalid JSON from LLM")
+
 def get_schema(cursor):
     """Return a textual description of the SQLite schema."""
     global SCHEMA_CACHE
@@ -42,9 +62,10 @@ def ask_llm(question, schema, model):
         "Translate the user's question into an SQLite compatible SQL query. "
         "Use the provided database schema. "
         "If a chart would better represent the answer, set chart_type to one of bar, line, or scatter "
-        "and specify which columns should be used for x and y. "
+        "and specify which column should be used for x and which column or columns should be used for y. "
+        "When multiple series are requested, return all y columns as a JSON array. "
         "Otherwise set chart_type to table. "
-        "Respond in JSON with keys: sql, chart_type, x, y. "
+        "Respond only with JSON using keys: sql, chart_type, x, y. "
         "Türkçe dil ve yazım hatalarını dikkate al."
     )
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
@@ -55,7 +76,7 @@ def ask_llm(question, schema, model):
         temperature=0
     )
     content = response.choices[0].message.content
-    return json.loads(content)
+    return parse_llm_response(content)
 
 def execute_sql(conn, sql):
     """Run the SQL and print the query and first rows for debugging."""
@@ -124,6 +145,8 @@ def main():
             print("Executing SQL:\n", sql)
             df = execute_sql(conn, sql)
             display_result(df, chart_type, x, y)
+        except ValueError as e:
+            print('LLM JSON error:', e)
         except Exception as e:
             print('Error:', e)
 

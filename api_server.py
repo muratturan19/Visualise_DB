@@ -89,8 +89,7 @@ async def query_database(req: QueryRequest = Body(...)):
             print(f"[WARN] Received list for x axis: {x}. Using first value.")
             x = x[0] if x else None
         if isinstance(y, (list, tuple)):
-            print(f"[WARN] Received list for y axis: {y}. Using first value.")
-            y = y[0] if y else None
+            print(f"[INFO] Received list for y axis: {y}")
         # Open a new connection for this request so the connection
         # is created and used within the same thread.
         with sqlite3.connect(nl2sql_app.DB_PATH) as conn:
@@ -107,6 +106,9 @@ async def query_database(req: QueryRequest = Body(...)):
         # Log the full API response for transparency
         print("[API RESPONSE]:", json.dumps(response, ensure_ascii=False))
         return response
+    except ValueError as e:
+        print("[ERROR]", e)
+        raise HTTPException(status_code=500, detail="LLM yanıtı geçersiz veya desteklenmeyen formatta")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

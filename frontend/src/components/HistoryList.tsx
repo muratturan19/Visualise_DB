@@ -4,7 +4,7 @@ export interface HistoryItem {
   sql: string
   chart_type: 'table' | 'bar' | 'line' | 'scatter'
   x?: string
-  y?: string
+  y?: string | string[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[]
 }
