@@ -47,7 +47,9 @@ def get_schema(cursor):
     global SCHEMA_CACHE
     if SCHEMA_CACHE is not None:
         return SCHEMA_CACHE
-    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+    tables = cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+    ).fetchall()
     schema_lines = []
     for (tbl,) in tables:
         cols = cursor.execute(f'PRAGMA table_info({tbl});').fetchall()
@@ -62,7 +64,9 @@ def get_schema_details(cursor):
     global SCHEMA_DETAILS_CACHE
     if SCHEMA_DETAILS_CACHE is not None:
         return SCHEMA_DETAILS_CACHE
-    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+    tables = cursor.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+    ).fetchall()
     result = {"tables": []}
     for (tbl,) in tables:
         cols = cursor.execute(f'PRAGMA table_info({tbl});').fetchall()
