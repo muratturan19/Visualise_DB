@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function SchemaExplorer({ onSelect }: Props) {
-  const [schema, setSchema] = useState<SchemaTable[]>([])
+  const [schema, setSchema] = useState<SchemaTable[] | null>(null)
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
@@ -16,9 +16,13 @@ export default function SchemaExplorer({ onSelect }: Props) {
       .catch((err) => console.error(err))
   }, [])
 
+  if (!schema) {
+    return <div>Loading schema...</div>
+  }
+
   const filtered = schema.map((tbl) => ({
     ...tbl,
-    columns: tbl.columns.filter((c) =>
+    columns: (tbl.columns ?? []).filter((c) =>
       (tbl.name + '.' + c.name).toLowerCase().includes(filter.toLowerCase())
     ),
   }))
@@ -37,7 +41,7 @@ export default function SchemaExplorer({ onSelect }: Props) {
           <div key={tbl.name} className="table-block">
             <strong>{tbl.name}</strong>
             <ul>
-              {tbl.columns.map((col) => (
+              {(tbl.columns ?? []).map((col) => (
                 <li
                   key={col.name}
                   className="column-item"
