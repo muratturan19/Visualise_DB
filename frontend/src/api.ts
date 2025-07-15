@@ -1,5 +1,6 @@
 export interface QueryRequest {
   question: string
+  context?: string[]
 }
 
 export interface VisualSpec {
@@ -16,15 +17,15 @@ export interface QueryResponse {
 }
 
 // Question should already be normalised before calling this function
-export async function queryDatabase(question: string): Promise<QueryResponse> {
+export async function queryDatabase(question: string, context: string[] = []): Promise<QueryResponse> {
   // Debug log of the exact payload being sent
-  console.log('POST /api/query payload:', { question })
+  console.log('POST /api/query payload:', { question, context })
   const res = await fetch('/api/query', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, context }),
   })
   if (!res.ok) {
     const text = await res.text()
@@ -34,4 +35,28 @@ export async function queryDatabase(question: string): Promise<QueryResponse> {
   // Debug log: inspect API response as soon as we receive it
   console.log('API response:', data)
   return data
+}
+
+export interface SchemaField {
+  name: string
+  type: string
+  fk?: { table: string; column: string }
+}
+
+export interface SchemaTable {
+  name: string
+  columns: SchemaField[]
+}
+
+export interface SchemaResponse {
+  tables: SchemaTable[]
+}
+
+export async function fetchSchema(): Promise<SchemaResponse> {
+  const res = await fetch('/api/schema')
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || 'API error')
+  }
+  return await res.json()
 }
