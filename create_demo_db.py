@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from faker import Faker
 import random
@@ -5,7 +6,9 @@ from datetime import datetime, timedelta
 
 fake = Faker('tr_TR')
 
-conn = sqlite3.connect('demo_sirket.db')
+# Veritabanı dosyası script konumuna göre `Database/` klasörüne yazılır
+db_path = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
+conn = sqlite3.connect(db_path)
 cur = conn.cursor()
 
 # Temel tabloları oluştur
@@ -276,4 +279,4 @@ for _ in range(8000):
 conn.commit()
 conn.close()
 
-print("Veritabanı başarıyla oluşturuldu: demo_sirket.db")
+print(f"Veritabanı başarıyla oluşturuldu: {db_path}")
