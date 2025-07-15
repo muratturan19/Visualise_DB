@@ -40,17 +40,19 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Natural Language SQL Demo</h1>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Enter your question in Turkish or English"
-        />
-        <button type="submit" disabled={loading || !question.trim()}>
-          {loading ? 'Loading...' : 'Ask'}
-        </button>
-      </form>
+      <h1>Natural Language SQL</h1>
+      <div className="card">
+        <form onSubmit={handleSubmit} className="query-form">
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Enter your question in Turkish or English"
+          />
+          <button type="submit" disabled={loading || !question.trim()}>
+            {loading ? 'Loading...' : 'Ask'}
+          </button>
+        </form>
+      </div>
       {loading && (
         <div className="loading">
           <p>Rapor hazırlanıyor...</p>
@@ -59,7 +61,7 @@ function App() {
       )}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {result && (
-        <div className="results">
+        <div className="card results">
           <h3>SQL</h3>
           <pre className="sql">{result.sql}</pre>
           {result.chart_type === 'table' ? (
@@ -74,7 +76,9 @@ function App() {
           )}
         </div>
       )}
-      <HistoryList items={history} onSelect={(item) => setResult(item)} />
+      <div className="card">
+        <HistoryList items={history} onSelect={(item) => setResult(item)} />
+      </div>
     </div>
   )
 }
