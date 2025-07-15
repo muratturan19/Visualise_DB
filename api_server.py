@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import nl2sql_app
+from field_mapping import to_tech, to_friendly, TECH_TO_FRIENDLY
 
 
 def debug_check_fields(rows, x=None, y=None):
@@ -71,15 +72,12 @@ with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     # more detailed /api/schema/details endpoint.
     schema_overview = {"tables": []}
     for table in schema_details["tables"]:
-        schema_overview["tables"].append(
-            {
-                "name": table["name"],
-                "columns": [
-                    {"name": col["name"], "type": col["type"]}
-                    for col in table["columns"]
-                ],
-            }
-        )
+        friendly_table = TECH_TO_FRIENDLY.get(table["name"], table["name"])
+        columns = [
+            {"name": TECH_TO_FRIENDLY.get(col["name"], col["name"]), "type": col["type"]}
+            for col in table["columns"]
+        ]
+        schema_overview["tables"].append({"name": friendly_table, "columns": columns})
 
 
 class QueryRequest(BaseModel):
@@ -94,7 +92,8 @@ async def query_database(req: QueryRequest = Body(...)):
     print("[API] Received payload:", req.model_dump())
 
     question = nl2sql_app.normalize_turkish_text(req.question)
-    context = req.context or []
+    question = to_tech(question)
+    context = [to_tech(nl2sql_app.normalize_turkish_text(c)) for c in (req.context or [])]
     try:
         instruction = nl2sql_app.ask_llm(question, schema, model, context)
         if "error" in instruction:
@@ -107,12 +106,13 @@ async def query_database(req: QueryRequest = Body(...)):
         # is created and used within the same thread.
         with sqlite3.connect(nl2sql_app.DB_PATH) as conn:
             df = nl2sql_app.execute_sql(conn, sql)
-            data = df.to_dict(orient="records")
+            raw_data = df.to_dict(orient="records")
+            data = [to_friendly(r) for r in raw_data]
 
         for vis in visuals:
             vtype = vis.get("type", "table")
             if vtype != "table":
-                debug_check_fields(data, vis.get("x"), vis.get("y"))
+                debug_check_fields(raw_data, vis.get("x"), vis.get("y"))
             vis["data"] = data
 
         response = {"sql": sql, "visuals": visuals}
