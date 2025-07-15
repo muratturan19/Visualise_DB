@@ -20,6 +20,7 @@ def normalize_turkish_text(text: str) -> str:
 DB_PATH = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
 
 SCHEMA_CACHE = None
+SCHEMA_DETAILS_CACHE = None
 
 
 def parse_llm_response(content: str) -> dict:
@@ -55,8 +56,35 @@ def get_schema(cursor):
     SCHEMA_CACHE = '\n'.join(schema_lines)
     return SCHEMA_CACHE
 
-def ask_llm(question, schema, model):
-    """Use OpenAI to translate a question into SQL and chart instructions."""
+
+def get_schema_details(cursor):
+    """Return structured schema details including columns and foreign keys."""
+    global SCHEMA_DETAILS_CACHE
+    if SCHEMA_DETAILS_CACHE is not None:
+        return SCHEMA_DETAILS_CACHE
+    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+    result = {"tables": []}
+    for (tbl,) in tables:
+        cols = cursor.execute(f'PRAGMA table_info({tbl});').fetchall()
+        fks = cursor.execute(f'PRAGMA foreign_key_list({tbl});').fetchall()
+        fk_map = {fk[3]: {"table": fk[2], "column": fk[4]} for fk in fks}
+        columns = []
+        for c in cols:
+            col = {"name": c[1], "type": c[2]}
+            if c[1] in fk_map:
+                col["fk"] = fk_map[c[1]]
+            columns.append(col)
+        result["tables"].append({"name": tbl, "columns": columns})
+    SCHEMA_DETAILS_CACHE = result
+    return result
+
+def ask_llm(question, schema, model, context=None):
+    """Use OpenAI to translate a question into SQL and chart instructions.
+
+    ``context`` may contain a list of field names that the user selected in the
+    UI. When provided this is added to the system prompt so the LLM can focus on
+    those fields.
+    """
     system_prompt = (
         "You are a data analyst expert in SQL. "
         "Translate the user's question into an SQLite compatible SQL query using the provided schema. "
@@ -70,6 +98,12 @@ def ask_llm(question, schema, model):
         "If a requested table does not exist respond with an 'error' key explaining the issue in one sentence. "
         "Türkçe dil ve yazım hatalarını dikkate al."
     )
+    if context:
+        if isinstance(context, (list, tuple)):
+            ctx = ', '.join(context)
+        else:
+            ctx = str(context)
+        system_prompt += f" Focus on the following fields if relevant: {ctx}."
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
     response = openai.chat.completions.create(
         model=model,

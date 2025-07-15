@@ -4,6 +4,49 @@
   padding: 1rem;
 }
 
+.layout {
+  display: flex;
+  gap: 1rem;
+}
+
+.main {
+  flex: 1;
+}
+
+.schema-explorer {
+  width: 250px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.schema-explorer input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.schema-explorer .table-block {
+  margin-bottom: 0.5rem;
+}
+
+.schema-explorer ul {
+  list-style: none;
+  padding-left: 0.5rem;
+}
+
+.column-item {
+  cursor: pointer;
+}
+
+.fk-ind {
+  color: #f59e0b;
+  margin-left: 0.25rem;
+}
+
 .query-form {
   display: flex;
   flex-direction: column;

@@ -64,10 +64,12 @@ app.add_middleware(
 with sqlite3.connect(nl2sql_app.DB_PATH) as _conn:
     _cursor = _conn.cursor()
     schema = nl2sql_app.get_schema(_cursor)
+    schema_details = nl2sql_app.get_schema_details(_cursor)
 
 
 class QueryRequest(BaseModel):
     question: str
+    context: list[str] | None = None
 
 
 @app.post("/api/query")
@@ -77,8 +79,9 @@ async def query_database(req: QueryRequest = Body(...)):
     print("[API] Received payload:", req.model_dump())
 
     question = nl2sql_app.normalize_turkish_text(req.question)
+    context = req.context or []
     try:
-        instruction = nl2sql_app.ask_llm(question, schema, model)
+        instruction = nl2sql_app.ask_llm(question, schema, model, context)
         if "error" in instruction:
             raise HTTPException(status_code=400, detail=instruction["error"])
 
@@ -106,6 +109,12 @@ async def query_database(req: QueryRequest = Body(...)):
         raise HTTPException(status_code=500, detail="LLM yanıtı geçersiz veya desteklenmeyen formatta")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/schema")
+async def get_schema_details_endpoint():
+    """Return cached schema details for the frontend schema explorer."""
+    return schema_details
 
 
 if __name__ == "__main__":
