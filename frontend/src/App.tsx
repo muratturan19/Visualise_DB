@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 // Normalise Turkish text by trimming whitespace and applying locale aware
 // lowercase. This is performed on submit only so the user can freely type
@@ -10,7 +10,7 @@ import DataTable from './components/DataTable'
 import ChartView from './components/ChartView'
 import HistoryList, { type HistoryItem } from './components/HistoryList'
 import ProgressBar from './components/ProgressBar'
-import { queryDatabase } from './api'
+import { queryDatabase, type VisualSpec } from './api'
 import SchemaExplorer from './components/SchemaExplorer'
 import './App.css'
 
@@ -76,15 +76,80 @@ function App() {
           {error && <p className="text-red-500">{error}</p>}
           {result && (
             <div className="space-y-4">
-              {result.visuals.map((vis, idx) => (
-                <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                  {vis.type === 'table' ? (
-                    <DataTable data={vis.data} />
-                  ) : (
-                    <ChartView data={vis.data} chartType={vis.type} x={vis.x!} y={vis.y!} />
-                  )}
-                </div>
-              ))}
+              {(() => {
+                const tableVis = result.visuals.find((v) => v.type === 'table')
+                const chartVis = result.visuals.find((v) => v.type !== 'table')
+                const remaining = result.visuals.filter(
+                  (v) => v !== tableVis && v !== chartVis
+                )
+
+                const getTitle = (vis: VisualSpec | undefined) => {
+                  if (!vis || vis.type === 'table') return ''
+                  const yKeys = Array.isArray(vis.y)
+                    ? vis.y
+                    : (vis.y ?? '').split(',').map((s) => s.trim())
+                  return vis.x && yKeys.length
+                    ? `${yKeys.join(', ')} vs ${vis.x}`
+                    : ''
+                }
+
+                const cards: React.ReactNode[] = []
+
+                if (tableVis && chartVis) {
+                  cards.push(
+                    <div
+                      key="combo"
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-2"
+                    >
+                      <div>
+                        {getTitle(chartVis) && (
+                          <h3 className="font-semibold mb-1">{getTitle(chartVis)}</h3>
+                        )}
+                        <p className="text-xs text-gray-500 break-all font-mono">
+                          {result.sql}
+                        </p>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <ChartView
+                          data={chartVis.data}
+                          chartType={chartVis.type as 'bar' | 'line' | 'scatter'}
+                          x={chartVis.x!}
+                          y={chartVis.y!}
+                        />
+                        <DataTable data={tableVis.data} />
+                      </div>
+                    </div>
+                  )
+                }
+
+                cards.push(
+                  ...remaining.map((vis, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-2"
+                    >
+                      {vis.type !== 'table' && getTitle(vis) && (
+                        <h3 className="font-semibold mb-1">{getTitle(vis)}</h3>
+                      )}
+                      <p className="text-xs text-gray-500 break-all font-mono">
+                        {result.sql}
+                      </p>
+                      {vis.type === 'table' ? (
+                        <DataTable data={vis.data} />
+                      ) : (
+                        <ChartView
+                          data={vis.data}
+                          chartType={vis.type as 'bar' | 'line' | 'scatter'}
+                          x={vis.x!}
+                          y={vis.y!}
+                        />
+                      )}
+                    </div>
+                  ))
+                )
+
+                return cards
+              })()}
             </div>
           )}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
