@@ -9,7 +9,7 @@ function normalizeInput(text: string): string {
 import DataTable from './components/DataTable'
 import ChartView from './components/ChartView'
 import HistoryList, { type HistoryItem } from './components/HistoryList'
-import ProgressBar from './components/ProgressBar'
+import Spinner from './components/Spinner'
 import { queryDatabase, type VisualSpec } from './api'
 import SchemaExplorer from './components/SchemaExplorer'
 import './App.css'
@@ -68,9 +68,8 @@ function App() {
             </form>
           </div>
           {loading && (
-            <div className="flex flex-col items-center gap-2">
-              <p>Rapor hazırlanıyor...</p>
-              <ProgressBar />
+            <div className="flex justify-center py-4">
+              <Spinner />
             </div>
           )}
           {error && <p className="text-red-500">{error}</p>}
