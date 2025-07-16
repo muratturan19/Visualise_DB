@@ -31,20 +31,24 @@ export default function DataTable({ data }: Props) {
   }
 
   return (
-    <div className="table-container">
-      <table>
-        <thead>
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-sm border divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-100 dark:bg-gray-800">
           <tr>
             {headers.map((h) => (
-              <th key={h}>{h}</th>
+              <th key={h} className="px-2 py-1 border border-gray-300 dark:border-gray-600 text-left">
+                {h}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={idx}>
+            <tr key={idx} className="even:bg-gray-50 dark:even:bg-gray-900">
               {headers.map((h) => (
-                <td key={h}>{formatValue(row[h], row)}</td>
+                <td key={h} className="px-2 py-1 border border-gray-300 dark:border-gray-600">
+                  {formatValue(row[h], row)}
+                </td>
               ))}
             </tr>
           ))}

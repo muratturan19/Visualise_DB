@@ -44,28 +44,29 @@ export default function SchemaExplorer({ onSelect }: Props) {
   })
 
   return (
-    <div className="schema-explorer">
-      <h3>Schema Explorer</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 overflow-y-auto max-h-[80vh] w-full lg:w-64 shrink-0">
+      <h3 className="font-semibold mb-2 text-lg">Schema Explorer</h3>
       <input
         type="text"
         placeholder="Search"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
+        className="w-full mb-2 rounded border border-gray-300 dark:border-gray-600 p-1"
       />
-      <div className="schema-list">
+      <div className="space-y-2">
         {filtered.map((tbl) => (
-          <div key={tbl.name} className="table-block">
+          <div key={tbl.name} className="space-y-1">
             <strong>{tbl.friendly ?? tbl.name}</strong>
-            <ul>
+            <ul className="list-none pl-2 space-y-1">
               {(tbl.columns ?? []).map((col) => (
                 <li
                   key={col.name}
-                  className="column-item"
+                  className="cursor-pointer hover:text-primary"
                   title={col.fk ? `FK -> ${col.fk.table}.${col.fk.column}` : ''}
                   onClick={() => onSelect(`${tbl.name}.${col.name}`)}
                 >
                   {col.friendly ?? col.name}
-                  {col.fk && <span className="fk-ind">*</span>}
+                  {col.fk && <span className="text-yellow-500 ml-1">*</span>}
                 </li>
               ))}
             </ul>
