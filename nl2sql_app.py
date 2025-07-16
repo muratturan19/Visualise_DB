@@ -19,8 +19,36 @@ def normalize_turkish_text(text: str) -> str:
 # Path to the database
 DB_PATH = os.path.join(os.path.dirname(__file__), 'Database', 'demo_sirket.db')
 
+# Path to the LLM guide which is included in every system prompt. The location
+# can be overridden with the ``LLM_GUIDE_PATH`` environment variable.
+LLM_GUIDE_PATH = os.path.join(os.path.dirname(__file__), "LLM_Guide.md")
+
 SCHEMA_CACHE = None
 SCHEMA_DETAILS_CACHE = None
+GUIDE_TEXT_CACHE = None
+
+
+def load_llm_guide(path: str | None = None) -> str:
+    """Return the contents of the LLM guide from ``path``.
+
+    When ``path`` is ``None`` the location specified by ``LLM_GUIDE_PATH`` is
+    used. The guide text is cached after the first successful read so repeated
+    calls avoid disk access. If the file cannot be read an empty string is
+    returned and a warning is printed.
+    """
+    global GUIDE_TEXT_CACHE
+    guide_file = path or os.getenv("LLM_GUIDE_PATH", LLM_GUIDE_PATH)
+    if path is None and GUIDE_TEXT_CACHE is not None:
+        return GUIDE_TEXT_CACHE
+    try:
+        with open(guide_file, "r", encoding="utf-8") as f:
+            text = f.read()
+    except OSError as e:
+        print(f"[WARN] Unable to load LLM guide from {guide_file}: {e}")
+        text = ""
+    if path is None:
+        GUIDE_TEXT_CACHE = text
+    return text
 
 
 def parse_llm_response(content: str) -> dict:
@@ -108,6 +136,9 @@ def ask_llm(question, schema, model, context=None):
         else:
             ctx = str(context)
         system_prompt += f" Focus on the following fields if relevant: {ctx}."
+    guide_text = load_llm_guide()
+    if guide_text:
+        system_prompt += "\n\n" + guide_text
     user_prompt = f"Schema:\n{schema}\n\nQuestion: {question}"
     response = openai.chat.completions.create(
         model=model,

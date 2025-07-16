@@ -15,6 +15,7 @@ The interface fully supports Turkish input. Questions are normalised by trimming
    # edit .env with your values
    ```
    The `.env` file should define `OPENAI_API_KEY`, `OPENAI_MODEL` and `REPO_URL`.
+   You can also set `LLM_GUIDE_PATH` to override the location of `LLM_Guide.md`.
 
 ## Usage
 Run the interactive application:
