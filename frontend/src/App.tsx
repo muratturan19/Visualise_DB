@@ -46,48 +46,48 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <h1>Natural Language SQL</h1>
-      <div className="layout">
-        <div className="main">
-          <div className="card">
-            <form onSubmit={handleSubmit} className="query-form">
+    <div className="max-w-5xl mx-auto p-4 space-y-4">
+      <h1 className="text-2xl font-bold text-center">Natural Language SQL</h1>
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="flex-1 space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Enter your question in Turkish or English"
+                className="w-full min-h-[80px] resize-y rounded border border-gray-300 dark:border-gray-600 p-2"
               />
-              <button type="submit" disabled={loading || !question.trim()}>
+              <button
+                type="submit"
+                disabled={loading || !question.trim()}
+                className="self-start rounded px-4 py-2 text-white bg-gradient-to-r from-primary to-secondary disabled:opacity-50"
+              >
                 {loading ? 'Loading...' : 'Ask'}
               </button>
             </form>
           </div>
           {loading && (
-            <div className="loading">
+            <div className="flex flex-col items-center gap-2">
               <p>Rapor hazırlanıyor...</p>
               <ProgressBar />
             </div>
           )}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p className="text-red-500">{error}</p>}
           {result && (
-            <div className="card results">
+            <div className="space-y-4">
               {result.visuals.map((vis, idx) => (
-                <div key={idx} className="visual-block">
+                <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                   {vis.type === 'table' ? (
                     <DataTable data={vis.data} />
                   ) : (
-                    <ChartView
-                      data={vis.data}
-                      chartType={vis.type}
-                      x={vis.x!}
-                      y={vis.y!}
-                    />
+                    <ChartView data={vis.data} chartType={vis.type} x={vis.x!} y={vis.y!} />
                   )}
                 </div>
               ))}
             </div>
           )}
-          <div className="card">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <HistoryList items={history} onSelect={(item) => setResult(item)} />
           </div>
         </div>

@@ -14,14 +14,20 @@ interface Props {
 
 export default function HistoryList({ items, onSelect }: Props) {
   return (
-    <div className="history">
-      <h3>History</h3>
+    <div>
+      <h3 className="font-semibold mb-2">History</h3>
       {items.length === 0 && <p>No history yet.</p>}
-      {items.map((it, idx) => (
-        <div key={idx} className="history-item" onClick={() => onSelect(it)}>
-          <p className="question">{it.question}</p>
-        </div>
-      ))}
+      <div className="space-y-2">
+        {items.map((it, idx) => (
+          <div
+            key={idx}
+            className="cursor-pointer border border-gray-300 dark:border-gray-600 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            onClick={() => onSelect(it)}
+          >
+            <p>{it.question}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
