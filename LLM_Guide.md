@@ -1,200 +1,157 @@
-LLM Guide
-Bu dosya, LLM’in Türkçe yönetim raporları ve KPI taleplerini anladığında hangi alanlara başvuracağını ve nasıl SQL üretmesi gerektiğini açıklar.
-Karmaşık hesaplamalar, özellikle “Genel Gider (GG)” ve “w_çarpanı” ile ilgili alanlarda adil ve orantılı dağıtım yapılmasına özen gösterilmelidir.
+# LLM_Guide.md
 
-Yönetim KPI’ları ve İş Sözlüğü
-Kullanıcı yönetim raporu veya KPI istediğinde aşağıdaki eşlemeleri ve hesaplama mantıklarını kullan.
-Her metrik için aşağıdaki açıklama, formül ve örnek SQL mantığına sadık kal.
-Eksik alan varsa hata döndür.
+## 📌 Amaç
 
-1. Ciro (Toplam Satış)
-Açıklama: Tüm dönem toplam satış geliri
+Bu rehber, LLM’in ticaret şirketlerinde **doğal dilden gelen karmaşık yönetici raporları ve KPI** isteklerini **doğru iş mantığıyla, adım adım ve güvenli şekilde SQL’e çevirmesi** için hazırlanmıştır.
 
-Formül: SUM(Satislar.toplam_fiyat)
+Özellikle **Satılan Malın Maliyeti (SMM)**, **Genel Gider (GG) dağıtımı**, **w_çarpanı** ve **müşteri/ürün/yıl bazında karlılık** gibi metriklerde, formüllerin “modüler ve adım adım” uygulanması şarttır.
 
-Alan: Satislar.toplam_fiyat
+---
 
-2. Satılan Malın Maliyeti (SMM)
-Açıklama: Al-sat şirketleri için SMM, Satınalma Maliyeti + (Genel Gider * w_çarpanı).
-SMM müşteri veya ürün bazında sorgulanırken GG ve w_çarpanı paylaştırılarak dağıtılmalıdır.
+## 1. Temel Kavramlar ve Mapping
 
-Formül:
-SMM = Toplam Satınalma Maliyeti + (Yıl bazında Genel Gider toplamı × ürünün w_çarpanı oranı)
+| Terim            | Açıklama                                                         | SQL Mapping / Alan     |
+|------------------|------------------------------------------------------------------|------------------------|
+| **w_çarpanı**    | Ürün bazında, GG dağıtımında ağırlık katsayısı                   | `Urunler.w_carpani`    |
+| **Toplam GG**    | Belirli bir dönem için toplam genel gider                        | `SUM(Finans.tutar) WHERE Finans.tip = 'Genel Gider'` |
+| **Ürün Adedi**   | Toplam ürün sayısı                                               | `SELECT COUNT(*) FROM Urunler` |
+| **GG_Unit**      | **Ürün başına GG**: GG'nin, w_çarpanına göre dağıtılmış hali     | (Bkz. formül aşağıda)  |
+| **Satınalma Maliyeti** | Her ürünün belirli dönemdeki toplam alış maliyeti          | `SUM(SatinAlma.toplam_tutar)` |
+| **SMM**          | Satılan Malın Maliyeti: Her ürün için toplam maliyet             | Satınalma + GG_Unit    |
+| **Karlılık**     | Satış - SMM (müşteri/ürün/yıl bazında)                           |                        |
 
-Alanlar: SatinAlma.toplam_tutar, Finans.tip, Urunler.w_carpani
+---
 
-Doğru Hesaplama Mantığı:
-GG (Genel Gider), toplam yıllık satışlara orantılı şekilde, müşteri veya ürün bazında paylaştırılarak eklenmeli.
+## 2. Modüler Hesaplama Zinciri
 
-Yanlış Uygulama Uyarısı:
-Genel Gider’in tamamı, her müşteri/ürün için birden fazla kez veya tüm veri setine topluca eklenemez!
+### 2.1 Ürün Başına Genel Gider (GG_Unit) Formülü
 
-Örnek Doğru SQL:
+> **Her bir ürünün genel gider payı (GG_Unit):**  
+> ```
+> GG_Unit = (Toplam GG x ürünün w_çarpanı) / Ürün adedi
+> ```
+> - *Toplam GG*: Finans tablosunda, dönem (yıl/ay) bazında tip='Genel Gider' olan kayıtların toplamı.
+> - *Ürün adedi*: Urunler tablosundaki toplam ürün sayısı.
+> - *w_çarpanı*: Urunler tablosunda, ilgili ürünün w_carpani değeri.
 
+### 2.2 Satılan Malın Maliyeti (SMM) Formülü
 
--- Her yıl ve müşteri için SMM:
+> **Her ürün için SMM:**  
+> ```
+> SMM = Satınalma Maliyeti + GG_Unit
+> ```
+> - Satınalma Maliyeti: Belirli ürün ve dönemdeki toplam alış tutarı (`SatinAlma.toplam_tutar`)
+> - GG_Unit: Yukarıdaki gibi hesaplanan, o ürün için genel gider payı
 
-SELECT
-  m.isim AS Musteri,
-  strftime('%Y', s.tarih) AS Yil,
-  SUM(s.toplam_fiyat) AS ToplamSatis,
-  SUM(sa.toplam_tutar) AS SatinAlmaMaliyeti,
-  -- GG payı: (o yılki GG / o yılki toplam satış) * müşterinin yıllık satış tutarı
-  (gg_yil.tutar / toplam_satis_yil.toplam) * SUM(s.toplam_fiyat) AS GenelGiderPayi,
-  SUM(sa.toplam_tutar) + (gg_yil.tutar / toplam_satis_yil.toplam) * SUM(s.toplam_fiyat) AS SMM
-FROM Musteriler m
-JOIN Satislar s ON m.id = s.musteri_id
-LEFT JOIN SatinAlma sa ON s.urun_id = sa.urun_id AND strftime('%Y', s.tarih) = strftime('%Y', sa.tarih)
-LEFT JOIN (
-    SELECT strftime('%Y', tarih) AS yil, SUM(tutar) AS tutar FROM Finans WHERE tip = 'Genel Gider' GROUP BY yil
-) gg_yil ON strftime('%Y', s.tarih) = gg_yil.yil
-LEFT JOIN (
-    SELECT strftime('%Y', tarih) AS yil, SUM(toplam_fiyat) AS toplam FROM Satislar GROUP BY yil
-) toplam_satis_yil ON strftime('%Y', s.tarih) = toplam_satis_yil.yil
-GROUP BY m.id, Yil
-Yanlış SQL’e Örnek (Yapma!):
+### 2.3 Müşteri/Ürün/Yıl Bazında Karlılık Formülü
 
+> **Her müşteri için (veya ürün/yıl bazında) karlılık:**  
+> ```
+> Karlılık = Toplam Satış - Toplam SMM
+> ```
+> - Toplam Satış: İlgili müşteri/ürünün toplam satış tutarı (`Satislar.toplam_fiyat`)
+> - Toplam SMM: O müşteri/ürün için, dönem bazında, SMM toplamı
 
--- GG’yi her müşteri veya ürün için birden fazla kez çarpma/toplama!
-SELECT SUM(Finans.tutar) * Urunler.w_carpani FROM Finans, Urunler ...
+---
 
+## 3. SQL Şablonları
 
-3. Brüt Kar
-Açıklama: Ciro - SMM
+### 3.1 Dönem Bazında Toplam GG ve Ürün Adedi
 
-Formül: [SUM(Satislar.toplam_fiyat)] - [SMM]
+```sql
+WITH gg_total AS (
+  SELECT strftime('%Y', tarih) AS yil, SUM(tutar) AS toplam_gg
+  FROM Finans WHERE tip = 'Genel Gider'
+  GROUP BY yil
+),
+urun_adedi AS (
+  SELECT COUNT(*) AS urun_sayisi FROM Urunler
+)
 
-Not: SMM’yi yukarıdaki gibi doğru hesapla.
+### 3.2 Her Ürün İçin GG_Unit Hesabı
 
-4. Net Kar
-Açıklama: Brüt Kar – Toplam Gider
+, urun_gg AS (
+  SELECT
+    u.id AS Urun_ID,
+    u.w_carpani,
+    gt.yil,
+    (gt.toplam_gg * u.w_carpani / ua.urun_sayisi) AS GG_Unit
+  FROM Urunler u
+  CROSS JOIN gg_total gt
+  CROSS JOIN urun_adedi ua
+)
 
-Formül: Brüt Kar - SUM(Finans.tutar WHERE tip='Gider')
-
-Alanlar: Finans.tutar, Finans.tip
-
-5. Stok Devir Hızı
-Açıklama: Satılan malın ortalama stok miktarına oranı
-
-Formül: [SMM] / AVG(Stoklar.miktar)
-
-Alan: Stoklar.miktar
-
-6. Çalışan Verimliliği
-Açıklama: Çalışan başına üretim veya satış
-
-Formül: SUM(Satislar.toplam_fiyat) / COUNT(Calisanlar.id)
-veya SUM(Uretim.adet) / COUNT(Calisanlar.id)
-
-7. Müşteri Bazında Satış
-Açıklama: Her müşteri için toplam satış
-
-Formül: SUM(Satislar.toplam_fiyat) GROUP BY musteri_id
-
-8. Karlılık (Ürün/Müşteri/Bölge)
-Açıklama: Satış – SMM, farklı kırılımlarda
-
-Formül: SUM(Satislar.toplam_fiyat) - SUM([SMM]) GROUP BY [X] (X: ürün, müşteri, bölge vs.)
-
-Not: SMM’nin ilgili kırılımda, GG payı orantılı dağıtılmalı.
-
-Alan Eşlemeleri
-"genel gider" → Finans.tip = 'Genel Gider'
-
-"gider" → Finans.tip = 'Gider'
-
-"tüm giderler" → Finans.tip IN ('Gider', 'Genel Gider')
-
-"ciro" / "toplam satış" → SUM(Satislar.toplam_fiyat)
-
-"smm" / "satılan malın maliyeti" → [Satınalma Maliyeti] + [Genel Gider * w_çarpanı]
-(GG payı, yıl ve satışa orantılı dağıtılır.)
-
-Genel Uyarı ve Yöntem
-Bir formül veritabanı şemasından doğrudan hesaplanamıyorsa, hangi alanın eksik olduğunu belirten bir hata döndür.
-
-GG (Genel Gider) ve w_çarpanı, müşteri/ürün/yıl bazında orantılı ve adil şekilde dağıtılmalı, topluca her birime yüklenmemelidir.
-
-Her zaman en doğru iş mantığı ve örnek SQL’e sadık kal.
-
-Yanlış veya hatalı uygulamaları engellemek için guide’daki örnekleri referans al.
-
-Karmaşık KPI’lar için Parçalı/Modüler Guide Örneği
-
-Müşteri/Ürün Bazında Karlılık Hesabı:
-Adım 1: Ürün Bazında SMM Hesabı
-
-Her ürün için, her yıl için:
-
-SMM = Satınalma Maliyeti + (o ürünün w_carpani x o yılki Genel Gider payı)
-
-Satınalma Maliyeti: SatinAlma.toplam_tutar
-
-Genel Gider Payı: (GG_Toplam_Yil * w_carpani) / Tüm Ürünlerin w_carpani toplamı (veya satış hacmine göre oran)
-
-SQL örneği:
-
+3.3 Her Ürün İçin SMM Hesabı
 sql
 Kopyala
 Düzenle
--- Ürün, yıl bazında SMM
 SELECT
   u.id AS Urun_ID,
-  strftime('%Y', sa.tarih) AS Yil,
+  sa.yil,
   SUM(sa.toplam_tutar) AS Satinalma_Maliyeti,
-  (gg_yil.tutar * u.w_carpani / toplam_w.w_sum) AS GG_Payi,
-  SUM(sa.toplam_tutar) + (gg_yil.tutar * u.w_carpani / toplam_w.w_sum) AS SMM
+  ug.GG_Unit,
+  SUM(sa.toplam_tutar) + ug.GG_Unit AS SMM
 FROM Urunler u
-LEFT JOIN SatinAlma sa ON u.id = sa.urun_id
 LEFT JOIN (
-  SELECT strftime('%Y', tarih) AS yil, SUM(tutar) AS tutar FROM Finans WHERE tip = 'Genel Gider' GROUP BY yil
-) gg_yil ON strftime('%Y', sa.tarih) = gg_yil.yil
-LEFT JOIN (
-  SELECT urun_id, SUM(w_carpani) AS w_sum FROM Urunler GROUP BY urun_id
-) toplam_w ON toplam_w.urun_id = u.id
-GROUP BY u.id, Yil
-Adım 2: Müşteri-Ürün Satışı ile SMM Eşleşmesi
-
-Her müşteri için, sattığı ürünün ilgili yıl ve ürün bazındaki SMM’sini bul.
-
-Ara Hesap:
-
-Müşteri, yıl, ürün bazında satış tutarı: Satislar.toplam_fiyat
-
-Aynı müşteri/yıl/ürün için SMM (yukarıdaki ara tablo ile JOIN)
-
-Adım 3: Müşteri Bazında Karlılık
-
-Her müşteri için:
-
-Karlılık = SUM(Satislar.toplam_fiyat - SMM)
-
-Yani, müşteriye satılan her ürünün “satış tutarı - o ürünün SMM’si”, hepsi toplanır.
-
-SQL Örneği:
-
+  SELECT urun_id, strftime('%Y', tarih) AS yil, toplam_tutar FROM SatinAlma
+) sa ON sa.urun_id = u.id
+LEFT JOIN urun_gg ug ON ug.Urun_ID = u.id AND ug.yil = sa.yil
+GROUP BY u.id, sa.yil
+3.4 Müşteri/Ürün/Yıl Bazında Karlılık
 sql
 Kopyala
 Düzenle
--- Müşteri, yıl, ürün bazında karlılık
 SELECT
   m.id AS Musteri_ID,
-  m.isim AS Musteri_Isim,
+  m.isim AS Musteri,
+  s.urun_id AS Urun_ID,
+  strftime('%Y', s.tarih) AS Yil,
   SUM(s.toplam_fiyat) AS Toplam_Satis,
+  smm_tablosu.SMM,
   SUM(s.toplam_fiyat - smm_tablosu.SMM) AS Kar
 FROM Musteriler m
 JOIN Satislar s ON m.id = s.musteri_id
 JOIN (
-  -- Adım 1’deki ürün, yıl bazında SMM tablosu burada smm_tablosu olarak kullanılır
-  SELECT ...
-) smm_tablosu ON s.urun_id = smm_tablosu.Urun_ID AND strftime('%Y', s.tarih) = smm_tablosu.Yil
-GROUP BY m.id
-Ek Talimatlar
-ÖNCE alt metrikleri (satınalma, SMM, GG payı, w_carpani) ayrı sorgular/ara tablolar olarak hesapla.
+  -- 3.3'teki SMM tablosu burada "smm_tablosu" olarak kullanılır
+  SELECT
+    u.id AS Urun_ID,
+    sa.yil,
+    SUM(sa.toplam_tutar) + ug.GG_Unit AS SMM
+  FROM Urunler u
+  LEFT JOIN (
+    SELECT urun_id, strftime('%Y', tarih) AS yil, toplam_tutar FROM SatinAlma
+  ) sa ON sa.urun_id = u.id
+  LEFT JOIN urun_gg ug ON ug.Urun_ID = u.id AND ug.yil = sa.yil
+  GROUP BY u.id, sa.yil
+) smm_tablosu ON s.urun_id = smm_tablosu.Urun_ID AND strftime('%Y', s.tarih) = smm_tablosu.yil
+GROUP BY m.id, s.urun_id, Yil
+4. Yanlış Yöntemler (Uyarı!)
+GG_Unit asla ürün/müşteri/ürün/yıl için tekrar tekrar topluca eklenmemeli.
 
-SONRA asıl KPI formülünü, bu ara tabloları JOIN’leyerek bul.
+Subquery ile GG veya w_çarpanı birden fazla çarpılıp, tekrar her satıra uygulanmamalı.
 
-Hiçbir zaman GG, w_carpani, SMM gibi kalemleri topluca ve tekrarlı biçimde müşteri/ürün/yıla yükleme.
+GG’nin tümünü her müşteriye/ürüne yüklemek yerine orantılı dağıt!
 
-SQL’i sade, anlaşılır ve parça parça kur!
+SMM, satış, GG ve w_çarpanı için önce alt metrikleri hesapla, sonra ana formülü uygula.
 
+5. Field Mapping Tablosu (Hızlı Referans)
+Türkçe İfade	SQL Mapping veya Alan
+"genel gider"	Finans.tip = 'Genel Gider'
+"gider"	Finans.tip = 'Gider'
+"tüm giderler"	Finans.tip IN ('Gider', 'Genel Gider')
+"w çarpanı"	Urunler.w_carpani
+"smm"	[Satınalma Maliyeti] + [GG_Unit]
+
+6. Debug ve Test Önerisi
+Çıkan tablo/raporda satış ve SMM rakamları mantıklı oranda olmalı, kâr veya zarar “satıştan büyük mutlak değer” alamaz.
+
+Her zaman ara metrikleri (GG_Unit, SMM, Satış) de kontrol et.
+
+LLM, karmaşık sorgularda SQL’i alt metrikler üzerinden, JOIN/CTE veya backend birleştirme ile kurmalı.
+
+Eksik veya çelişkili veri varsa hata döndür.
+
+7. Ekstra Not
+Kullanıcıya veya LLM’e “GG_Unit” (ürün başına GG) kavramı net şekilde öğretilmeli ve SQL’de de bu terim kullanılmalı.
+
+Her hesap, adım adım, parçalı ve şeffaf şekilde kurulmalı.
