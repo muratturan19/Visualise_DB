@@ -13,8 +13,13 @@ export default function DataTable({ data }: Props) {
 
   // Format numbers using Turkish locale and append unit if present.
   const formatValue = (val: unknown, row: Record<string, unknown>) => {
-    if (typeof val === 'number') {
-      const formatted = val.toLocaleString('tr-TR', {
+    const isNumeric =
+      typeof val === 'number' ||
+      (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val)))
+
+    if (isNumeric) {
+      const num = Number(val)
+      const formatted = num.toLocaleString('tr-TR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })
@@ -36,7 +41,10 @@ export default function DataTable({ data }: Props) {
         <thead className="bg-gray-100 dark:bg-gray-800">
           <tr>
             {headers.map((h) => (
-              <th key={h} className="px-2 py-1 border border-gray-300 dark:border-gray-600 text-left">
+              <th
+                key={h}
+                className="px-2 py-1 border border-gray-300 dark:border-gray-600 text-left font-semibold"
+              >
                 {h}
               </th>
             ))}
@@ -44,12 +52,32 @@ export default function DataTable({ data }: Props) {
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={idx} className="even:bg-gray-50 dark:even:bg-gray-900">
-              {headers.map((h) => (
-                <td key={h} className="px-2 py-1 border border-gray-300 dark:border-gray-600">
-                  {formatValue(row[h], row)}
-                </td>
-              ))}
+            <tr
+              key={idx}
+              className="even:bg-gray-50 dark:even:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              {headers.map((h) => {
+                const val = row[h]
+                const isNumeric =
+                  typeof val === 'number' ||
+                  (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val)))
+                const num = isNumeric ? Number(val) : 0
+                const colorClass =
+                  isNumeric && num < 0
+                    ? 'text-red-600'
+                    : isNumeric && num > 0
+                    ? 'text-green-600'
+                    : ''
+
+                return (
+                  <td
+                    key={h}
+                    className={`px-2 py-1 border border-gray-300 dark:border-gray-600 ${colorClass}`}
+                  >
+                    {formatValue(val, row)}
+                  </td>
+                )
+              })}
             </tr>
           ))}
         </tbody>
