@@ -1,4 +1,6 @@
 
+import { UserIcon } from '@heroicons/react/20/solid'
+
 interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[]
@@ -10,6 +12,15 @@ export default function DataTable({ data }: Props) {
   }
 
   const headers = Object.keys(data[0])
+
+  const customerHeaders = [
+    'müşteriler',
+    'müşteri',
+    'musteriler',
+    'musteri',
+    'customer',
+    'customers',
+  ]
 
   // Format numbers using Turkish locale and append unit if present.
   const formatValue = (val: unknown, row: Record<string, unknown>) => {
@@ -69,12 +80,21 @@ export default function DataTable({ data }: Props) {
                     ? 'text-green-600'
                     : ''
 
+                const isCustomerField = customerHeaders.some((ch) =>
+                  h.toLowerCase().includes(ch)
+                )
+
                 return (
                   <td
                     key={h}
                     className={`px-2 py-1 border border-gray-300 dark:border-gray-600 ${colorClass}`}
                   >
-                    {formatValue(val, row)}
+                    <div className="flex items-center gap-1">
+                      {isCustomerField && (
+                        <UserIcon className="w-4 h-4 text-gray-500" />
+                      )}
+                      {formatValue(val, row)}
+                    </div>
                   </td>
                 )
               })}
