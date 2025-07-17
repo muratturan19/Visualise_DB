@@ -13,7 +13,10 @@ export default function Button({
   const base =
     'px-4 py-2 rounded font-medium focus:outline-none transition-colors'
   const variants: Record<string, string> = {
-    primary: 'bg-primary text-white hover:bg-primary-light',
+    // Provide a fallback to Tailwind's blue palette in case custom colors from
+    // tailwind.config.ts are not available.
+    primary:
+      'bg-primary bg-blue-600 text-white hover:bg-primary-light hover:bg-blue-700',
     // Fallback to Tailwind's built-in green classes in case custom colors
     // from tailwind.config.ts are not generated.
     secondary:
