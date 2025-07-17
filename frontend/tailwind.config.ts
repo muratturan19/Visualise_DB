@@ -3,6 +3,7 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = withMT({
   mode: 'jit',
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx,jsx,js}'],
   theme: {
     extend: {
@@ -26,6 +27,14 @@ const config: Config = withMT({
           DEFAULT: '#10b981',
           light: '#6ee7b7',
           dark: '#047857',
+        },
+        light: {
+          base: '#ffffff',
+          foreground: '#1e293b',
+        },
+        dark: {
+          base: '#36454F',
+          foreground: '#f9fafb',
         },
       },
     },

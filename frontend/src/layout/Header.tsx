@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import reactLogo from '../assets/react.svg'
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { Cog6ToothIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
+import { useTheme } from '../hooks/useTheme'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
   const nav = [
     { label: 'Home', href: '#' },
     { label: 'History', href: '#' },
@@ -22,7 +24,19 @@ export default function Header() {
             ))}
           </nav>
         </div>
-        <div className="relative">
+        <div className="flex items-center gap-2 relative">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"
+          >
+            <span className="sr-only">Toggle theme</span>
+            {theme === 'dark' ? (
+              <SunIcon className="w-5 h-5" />
+            ) : (
+              <MoonIcon className="w-5 h-5" />
+            )}
+          </button>
           <button
             type="button"
             className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"
