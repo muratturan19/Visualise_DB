@@ -6,7 +6,17 @@ const config: Config = withMT({
   content: ['./index.html', './src/**/*.{ts,tsx,jsx,js}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'Roboto', 'ui-sans-serif', 'system-ui'],
+      },
       colors: {
+        navy: '#1e40af',
+        charcoal: '#36454F',
+        accent: {
+          DEFAULT: '#f59e0b',
+          light: '#fcd34d',
+          dark: '#b45309',
+        },
         primary: {
           DEFAULT: '#2563eb',
           light: '#3b82f6',
