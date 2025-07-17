@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  SortingState,
+  type SortingState,
 } from '@tanstack/react-table'
 import { UserIcon } from '@heroicons/react/20/solid'
 import Button from './ui/Button'
