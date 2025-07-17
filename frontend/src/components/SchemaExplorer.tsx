@@ -44,7 +44,7 @@ export default function SchemaExplorer({ onSelect }: Props) {
   })
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 overflow-y-auto max-h-[80vh] w-full lg:w-64 shrink-0">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 overflow-y-auto max-h-[80vh] w-full">
       <h3 className="font-semibold mb-2 text-lg">Schema Explorer</h3>
       <input
         type="text"
