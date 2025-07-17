@@ -7,11 +7,9 @@ body {
   color: #1e293b; /* slate-800 */
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #36454F; /* charcoal */
-    color: #f9fafb;
-  }
+.dark body {
+  background-color: #36454F; /* charcoal */
+  color: #f9fafb;
 }
 
 @layer utilities {
