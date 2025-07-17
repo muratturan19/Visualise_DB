@@ -16,6 +16,9 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center h-16 px-4">
         <div className="flex items-center gap-3">
           <img src={companyLogo} alt="Company logo" className="w-10 h-10" />
+          <span className="font-bold text-lg text-gray-900 dark:text-white">
+            Visual DataBase
+          </span>
         </div>
         <nav className="flex-1 flex justify-center gap-6 text-sm font-medium">
           {nav.map((n) => (
