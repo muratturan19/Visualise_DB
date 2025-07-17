@@ -46,34 +46,41 @@ function App() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 space-y-4">
+    <div className="min-h-screen p-4 space-y-4">
       <h1 className="text-2xl font-bold text-center">Natural Language SQL</h1>
-      <div className="flex flex-col gap-4 lg:flex-row">
-        <div className="flex-1 space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[18rem_1fr_18rem]">
+        <div className="lg:row-span-2 order-last lg:order-none">
+          <SchemaExplorer onSelect={handleFieldSelect} />
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h3 className="font-semibold mb-2">Query</h3>
+          <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-2">
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Enter your question in Turkish or English"
+                placeholder="Enter your question"
                 className="w-full min-h-[80px] resize-y rounded border border-gray-300 dark:border-gray-600 p-2"
               />
               <button
                 type="submit"
                 disabled={loading || !question.trim()}
-                className="self-start rounded px-4 py-2 text-white bg-gradient-to-r from-primary to-secondary disabled:opacity-50"
+                className="w-32 rounded bg-blue-500 text-white px-4 py-2 disabled:opacity-50"
               >
                 {loading ? 'Loading...' : 'Ask'}
               </button>
             </form>
+            {loading && (
+              <div className="flex justify-center py-2">
+                <Spinner />
+              </div>
+            )}
+            {error && <p className="text-red-500">{error}</p>}
           </div>
-          {loading && (
-            <div className="flex justify-center py-4">
-              <Spinner />
-            </div>
-          )}
-          {error && <p className="text-red-500">{error}</p>}
-          {result && (
+        </div>
+        {result && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:col-start-2 lg:row-start-2">
+            <h3 className="font-semibold mb-2">Results</h3>
             <div className="space-y-4">
               {(() => {
                 const tableVis = result.visuals.find((v) => v.type === 'table')
@@ -150,12 +157,14 @@ function App() {
                 return cards
               })()}
             </div>
-          )}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          </div>
+        )}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:row-span-2 order-last lg:order-none">
+          <h3 className="font-semibold mb-2">History</h3>
+          <div className="space-y-2">
             <HistoryList items={history} onSelect={(item) => setResult(item)} />
           </div>
         </div>
-        <SchemaExplorer onSelect={handleFieldSelect} />
       </div>
     </div>
   )
