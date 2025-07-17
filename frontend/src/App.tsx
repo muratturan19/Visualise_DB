@@ -3,7 +3,7 @@ import Button from './components/ui/Button'
 import Card from './components/ui/Card'
 import QueryEditor from './components/QueryEditor'
 import DataTable from './components/DataTable'
-import ChartView from './components/ChartView'
+import ChartView from './components/charts/ChartView'
 import SchemaExplorer from './components/SchemaExplorer'
 import Spinner from './components/Spinner'
 import { queryDatabase, type VisualSpec } from './api'
@@ -128,7 +128,14 @@ export default function App() {
                       ) : (
                         <ChartView
                           data={vis.data}
-                          chartType={vis.type as 'bar' | 'line' | 'scatter'}
+                          chartType={
+                            vis.type as
+                              | 'bar'
+                              | 'line'
+                              | 'scatter'
+                              | 'pie'
+                              | 'doughnut'
+                          }
                           x={vis.x!}
                           y={vis.y!}
                         />

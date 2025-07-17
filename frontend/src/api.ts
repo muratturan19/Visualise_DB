@@ -4,7 +4,7 @@ export interface QueryRequest {
 }
 
 export interface VisualSpec {
-  type: 'table' | 'bar' | 'line' | 'scatter'
+  type: 'table' | 'bar' | 'line' | 'scatter' | 'pie' | 'doughnut'
   x?: string
   y?: string | string[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
