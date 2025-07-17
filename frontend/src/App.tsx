@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import Button from './components/ui/Button'
 import Card from './components/ui/Card'
-import { Textarea } from './components/ui/Input'
+import QueryEditor from './components/QueryEditor'
 import DataTable from './components/DataTable'
 import ChartView from './components/ChartView'
 import SchemaExplorer from './components/SchemaExplorer'
 import Spinner from './components/Spinner'
 import { queryDatabase, type VisualSpec } from './api'
+import { useQueryHistory } from './hooks/useQueryHistory'
 
 function normalizeInput(text: string): string {
   return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('tr-TR')
@@ -18,16 +19,24 @@ export default function App() {
   const [sql, setSql] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const { addQuery } = useQueryHistory()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFormError('')
+    if (!question.trim()) {
+      setFormError('Query cannot be empty')
+      return
+    }
     setLoading(true)
     try {
       const normalized = normalizeInput(question)
       const res = await queryDatabase(normalized)
       setSql(res.sql)
       setResult(res.visuals)
+      addQuery(question)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       setError(message)
@@ -39,6 +48,17 @@ export default function App() {
 
   const handleFieldSelect = (field: string) => {
     setQuestion((q) => (q ? q + ' ' + field : field))
+  }
+
+  const handleSave = () => {
+    if (question.trim()) {
+      localStorage.setItem('savedQuery', question)
+    }
+  }
+
+  const handleLoad = () => {
+    const saved = localStorage.getItem('savedQuery')
+    if (saved) setQuestion(saved)
   }
 
   return (
@@ -53,21 +73,36 @@ export default function App() {
         <div className="grid grid-cols-4 gap-8">
           <div className="col-span-4 lg:col-span-3 flex flex-col space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Textarea
-                placeholder="Sorunuzu yazın"
-                className="min-h-[120px]"
+              <QueryEditor
                 value={question}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setQuestion(e.target.value)
-                }
+                onChange={setQuestion}
+                error={formError}
+                disabled={loading}
               />
-              <Button
-                type="submit"
-                className="w-full text-base"
-                disabled={loading || !question.trim()}
-              >
-                {loading ? 'Çalışıyor...' : 'ASK'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  className="flex-1 text-base"
+                  disabled={loading || !question.trim()}
+                >
+                  {loading ? 'Çalışıyor...' : 'ASK'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleSave}
+                  disabled={!question.trim()}
+                >
+                  Save
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleLoad}
+                >
+                  Load
+                </Button>
+              </div>
             </form>
             {error && <p className="text-red-600">{error}</p>}
             {loading && (

@@ -15,7 +15,9 @@
     "chart.js": "^4.4.0",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@uiw/react-codemirror": "^4.24.1",
+    "@codemirror/lang-sql": "^6.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
