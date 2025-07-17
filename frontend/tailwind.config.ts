@@ -24,11 +24,11 @@ const config: Config = withMT({
         'neutral-dark': '#64748b',
         'neutral-black': '#0f172a',
       },
-      backgroundImage: (theme) => ({
-        'gradient-accent': `linear-gradient(to right, ${theme('colors.brand-accent')}, ${theme('colors.accent-dark')})`,
-        'gradient-header': `linear-gradient(135deg, ${theme('colors.brand-primary')} 0%, ${theme('colors.brand-secondary')} 100%)`,
-        'gradient-card': `linear-gradient(145deg, ${theme('colors.neutral-white')} 0%, ${theme('colors.neutral-light')} 100%)`,
-      }),
+      backgroundImage: {
+        'gradient-accent': 'linear-gradient(to right, #3b82f6, #1d4ed8)',
+        'gradient-header': 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+        'gradient-card': 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+      },
     },
   },
   plugins: [],
