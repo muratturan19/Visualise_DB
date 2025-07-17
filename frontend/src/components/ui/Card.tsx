@@ -6,7 +6,7 @@ export default function Card({ className = '', ...props }: CardProps) {
   return (
     <div
       {...props}
-      className={`bg-gradient-to-br from-neutral-white to-neutral-light dark:from-neutral-dark dark:to-neutral-black rounded-2xl shadow-xl border border-neutral-medium dark:border-neutral-dark hover:shadow-2xl transition-shadow ${className}`}
+      className={`bg-gradient-to-br from-white to-slate-50 dark:from-slate-500 dark:to-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-500 hover:shadow-2xl transition-shadow ${className}`}
     />
   )
 }

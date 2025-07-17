@@ -96,7 +96,7 @@ export default function DataTable({ data }: Props) {
           return (
             <div className={`flex items-center gap-1 ${colorClass}`}>
               {isCustomerField && (
-                <UserIcon className="w-4 h-4 text-neutral-dark" />
+                <UserIcon className="w-4 h-4 text-slate-500" />
               )}
               {formatValue(val, row.original)}
             </div>
@@ -198,15 +198,15 @@ export default function DataTable({ data }: Props) {
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm border divide-y divide-neutral-medium dark:divide-neutral-dark">
-          <thead className="bg-neutral-light dark:bg-neutral-black">
+        <table className="min-w-full text-sm border divide-y divide-slate-200 dark:divide-slate-500">
+          <thead className="bg-slate-50 dark:bg-slate-900">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="px-2 py-1 border border-neutral-medium dark:border-neutral-dark text-left font-semibold select-none cursor-pointer"
+                    className="px-2 py-1 border border-slate-200 dark:border-slate-500 text-left font-semibold select-none cursor-pointer"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -230,12 +230,12 @@ export default function DataTable({ data }: Props) {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="even:bg-neutral-light dark:even:bg-neutral-black hover:bg-neutral-light dark:hover:bg-neutral-dark"
+                className="even:bg-slate-50 dark:even:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-500"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-2 py-1 border border-neutral-medium dark:border-neutral-dark"
+                    className="px-2 py-1 border border-slate-200 dark:border-slate-500"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
