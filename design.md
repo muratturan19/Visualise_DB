@@ -11,26 +11,26 @@
 
 ### 1. Premium Color Palette
 ```css
-Primary Colors:
-- Deep Navy: #1e293b (primary brand)
-- Steel Blue: #334155 (secondary)
-- Bright Blue: #3b82f6 (accent/CTA)
-- Success Green: #10b981
-- Warning Orange: #f59e0b
-- Error Red: #ef4444
+/* Tailwind config keys */
+brand-primary:  #1e293b;
+brand-secondary: #334155;
+brand-accent:   #3b82f6;
+accent-dark:    #1d4ed8;
 
-Neutral Colors:
-- Pure White: #ffffff
-- Light Gray: #f8fafc
-- Medium Gray: #e2e8f0
-- Dark Gray: #64748b
-- Charcoal: #334155
-- Near Black: #0f172a
+success:        #10b981;
+warning:        #f59e0b;
+error:          #ef4444;
 
-Gradients:
-- Header: linear-gradient(135deg, #1e293b 0%, #334155 100%)
-- Cards: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)
-- Buttons: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)
+neutral-white:  #ffffff;
+neutral-light:  #f8fafc;
+neutral-medium: #e2e8f0;
+neutral-dark:   #64748b;
+neutral-black:  #0f172a;
+
+/* Gradient utilities */
+gradient-header:  linear-gradient(135deg, var(--tw-color-brand-primary) 0%, var(--tw-color-brand-secondary) 100%);
+gradient-card:    linear-gradient(145deg, var(--tw-color-neutral-white) 0%, var(--tw-color-neutral-light) 100%);
+gradient-accent:  linear-gradient(to right, var(--tw-color-brand-accent), var(--tw-color-accent-dark));
 ```
 
 ### 2. Enhanced Header Design
