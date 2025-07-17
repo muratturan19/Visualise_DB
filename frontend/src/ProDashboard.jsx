@@ -58,7 +58,7 @@ export default function ProDashboard() {
 
         <Card>
           <CardHeader shadow={false} floated={false} className="p-4">
-            <Typography variant="h6">Sorgu & Sonuç</Typography>
+            <Typography variant="h6">Query</Typography>
           </CardHeader>
           <CardBody className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-2">
@@ -73,68 +73,72 @@ export default function ProDashboard() {
               </Button>
             </form>
             {error && <Typography color="red">{error}</Typography>}
-            {result && (
-              <Card className="mt-4">
-                <CardBody>
-                  {(() => {
-                    const tableVis = result.visuals.find((v) => v.type === "table");
-                    const chartVis = result.visuals.find((v) => v.type !== "table");
-                    const remaining = result.visuals.filter((v) => v !== tableVis && v !== chartVis);
-
-                    const getTitle = (vis) => {
-                      if (!vis || vis.type === "table") return "";
-                      const yKeys = Array.isArray(vis.y)
-                        ? vis.y
-                        : (vis.y || "").split(",").map((s) => s.trim());
-                      return vis.x && yKeys.length ? `${yKeys.join(", ")} vs ${vis.x}` : "";
-                    };
-
-                    const cards = [];
-
-                    if (tableVis && chartVis) {
-                      cards.push(
-                        <div key="combo" className="space-y-2">
-                          <div>
-                            {getTitle(chartVis) && (
-                              <Typography variant="h6">{getTitle(chartVis)}</Typography>
-                            )}
-                            <Typography variant="small" className="break-all font-mono">
-                              {result.sql}
-                            </Typography>
-                          </div>
-                          <div className="grid gap-4 md:grid-cols-2">
-                            <ChartView data={chartVis.data} chartType={chartVis.type} x={chartVis.x} y={chartVis.y} />
-                            <DataTable data={tableVis.data} />
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    cards.push(
-                      ...remaining.map((vis, idx) => (
-                        <div key={idx} className="space-y-2">
-                          {vis.type !== "table" && getTitle(vis) && (
-                            <Typography variant="h6">{getTitle(vis)}</Typography>
-                          )}
-                          <Typography variant="small" className="break-all font-mono">
-                            {result.sql}
-                          </Typography>
-                          {vis.type === "table" ? (
-                            <DataTable data={vis.data} />
-                          ) : (
-                            <ChartView data={vis.data} chartType={vis.type} x={vis.x} y={vis.y} />
-                          )}
-                        </div>
-                      ))
-                    );
-
-                    return cards;
-                  })()}
-                </CardBody>
-              </Card>
-            )}
           </CardBody>
         </Card>
+
+        {result && (
+          <Card className="lg:col-start-2 lg:row-start-2">
+            <CardHeader shadow={false} floated={false} className="p-4">
+              <Typography variant="h6">Results</Typography>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              {(() => {
+                const tableVis = result.visuals.find((v) => v.type === "table");
+                const chartVis = result.visuals.find((v) => v.type !== "table");
+                const remaining = result.visuals.filter((v) => v !== tableVis && v !== chartVis);
+
+                const getTitle = (vis) => {
+                  if (!vis || vis.type === "table") return "";
+                  const yKeys = Array.isArray(vis.y)
+                    ? vis.y
+                    : (vis.y || "").split(",").map((s) => s.trim());
+                  return vis.x && yKeys.length ? `${yKeys.join(", ")} vs ${vis.x}` : "";
+                };
+
+                const cards = [];
+
+                if (tableVis && chartVis) {
+                  cards.push(
+                    <div key="combo" className="space-y-2">
+                      <div>
+                        {getTitle(chartVis) && (
+                          <Typography variant="h6">{getTitle(chartVis)}</Typography>
+                        )}
+                        <Typography variant="small" className="break-all font-mono">
+                          {result.sql}
+                        </Typography>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <ChartView data={chartVis.data} chartType={chartVis.type} x={chartVis.x} y={chartVis.y} />
+                        <DataTable data={tableVis.data} />
+                      </div>
+                    </div>
+                  );
+                }
+
+                cards.push(
+                  ...remaining.map((vis, idx) => (
+                    <div key={idx} className="space-y-2">
+                      {vis.type !== "table" && getTitle(vis) && (
+                        <Typography variant="h6">{getTitle(vis)}</Typography>
+                      )}
+                      <Typography variant="small" className="break-all font-mono">
+                        {result.sql}
+                      </Typography>
+                      {vis.type === "table" ? (
+                        <DataTable data={vis.data} />
+                      ) : (
+                        <ChartView data={vis.data} chartType={vis.type} x={vis.x} y={vis.y} />
+                      )}
+                    </div>
+                  ))
+                );
+
+                return cards;
+              })()}
+            </CardBody>
+          </Card>
+        )}
 
         <Card className="lg:row-span-2 order-last lg:order-none">
           <CardHeader shadow={false} floated={false} className="p-4">
