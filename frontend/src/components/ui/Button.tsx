@@ -13,13 +13,10 @@ export default function Button({
   const base =
     'px-8 py-3 rounded-lg font-medium focus:outline-none transition-colors shadow-lg hover:shadow-xl'
   const variants: Record<string, string> = {
-    // Provide a fallback to Tailwind's blue palette in case custom colors from
-    // tailwind.config.ts are not available.
     primary:
-      'bg-gradient-to-r from-blue-500 to-blue-700 text-white',
-    // Secondary buttons get a neutral style for light and dark modes.
+      'bg-gradient-accent text-white',
     secondary:
-      'bg-slate-50 dark:bg-slate-500 border border-slate-200 text-slate-500 dark:text-slate-50 hover:bg-slate-200/50',
+      'bg-neutral-light dark:bg-brand-secondary border border-neutral-medium text-brand-secondary dark:text-neutral-light hover:bg-neutral-medium/50',
   }
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : ''
   return (
