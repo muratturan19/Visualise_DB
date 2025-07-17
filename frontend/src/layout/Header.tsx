@@ -18,7 +18,11 @@ export default function Header() {
           <img src={reactLogo} alt="logo" className="w-8 h-8" />
           <nav className="hidden md:flex gap-4 text-sm">
             {nav.map((n) => (
-              <a key={n.label} href={n.href} className="hover:underline">
+              <a
+                key={n.label}
+                href={n.href}
+                className="hover:underline text-black dark:text-white"
+              >
                 {n.label}
               </a>
             ))}
