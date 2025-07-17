@@ -54,7 +54,13 @@ export default function Header() {
           </button>
           {open && (
             <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded shadow-md z-10">
-              <button className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  // TODO: implement settings behaviour
+                }}
+                className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 <Cog6ToothIcon className="w-4 h-4" /> Settings
               </button>
             </div>
