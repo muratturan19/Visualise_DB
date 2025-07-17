@@ -4,10 +4,10 @@ import Card from './components/ui/Card'
 import QueryEditor from './components/QueryEditor'
 import DataTable from './components/DataTable'
 import ChartView from './components/charts/ChartView'
-import SchemaExplorer from './components/SchemaExplorer'
 import Spinner from './components/Spinner'
 import { queryDatabase, type VisualSpec } from './api'
 import { useQueryHistory } from './hooks/useQueryHistory'
+import MainLayout from './layout/MainLayout'
 
 function normalizeInput(text: string): string {
   return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('tr-TR')
@@ -62,100 +62,82 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-gray-100">
-        <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
-          <h1 className="text-2xl font-bold">Visual DataBase</h1>
-          <div className="w-8 h-8 rounded-full bg-gray-300" />
-        </div>
-      </header>
-      <main className="flex-1 max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-4 gap-8">
-          <div className="col-span-4 lg:col-span-3 flex flex-col space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <QueryEditor
-                value={question}
-                onChange={setQuestion}
-                error={formError}
-                disabled={loading}
-              />
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  className="flex-1 text-base"
-                  disabled={loading || !question.trim()}
-                >
-                  {loading ? 'Çalışıyor...' : 'ASK'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleSave}
-                  disabled={!question.trim()}
-                >
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleLoad}
-                >
-                  Load
-                </Button>
-              </div>
-            </form>
-            {error && <p className="text-red-600">{error}</p>}
-            {loading && (
-              <div className="flex justify-center py-4">
-                <Spinner />
-              </div>
-            )}
-            {result && (
-              <div className="space-y-6">
-                {result.map((vis, idx) => (
-                  <Card key={idx}>
-                    <div className="p-4 space-y-4">
-                      {vis.type !== 'table' && vis.x && vis.y && (
-                        <h2 className="text-lg font-semibold">
-                          {Array.isArray(vis.y) ? vis.y.join(', ') : vis.y} vs {vis.x}
-                        </h2>
-                      )}
-                      {sql && (
-                        <p className="text-sm break-all font-mono">{sql}</p>
-                      )}
-                      {vis.type === 'table' ? (
-                        <DataTable data={vis.data} />
-                      ) : (
-                        <ChartView
-                          data={vis.data}
-                          chartType={
-                            vis.type as
-                              | 'bar'
-                              | 'line'
-                              | 'scatter'
-                              | 'pie'
-                              | 'doughnut'
-                          }
-                          x={vis.x!}
-                          y={vis.y!}
-                        />
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
+    <MainLayout onFieldSelect={handleFieldSelect}>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <QueryEditor
+            value={question}
+            onChange={setQuestion}
+            error={formError}
+            disabled={loading}
+          />
+          <div className="flex gap-2">
+            <Button
+              type="submit"
+              className="flex-1 text-base"
+              disabled={loading || !question.trim()}
+            >
+              {loading ? 'Çalışıyor...' : 'ASK'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleSave}
+              disabled={!question.trim()}
+            >
+              Save
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleLoad}
+            >
+              Load
+            </Button>
           </div>
-          <div className="col-span-4 lg:col-span-1">
-            <Card className="shadow">
-              <div className="p-2 space-y-2">
-                <h2 className="text-lg font-semibold">Schema Explorer</h2>
-                <SchemaExplorer onSelect={handleFieldSelect} />
-              </div>
-            </Card>
+        </form>
+        {error && <p className="text-red-600">{error}</p>}
+        {loading && (
+          <div className="flex justify-center py-4">
+            <Spinner />
           </div>
-        </div>
-      </main>
-    </div>
+        )}
+        {result && (
+          <div className="space-y-6">
+            {result.map((vis, idx) => (
+              <Card key={idx}>
+                <div className="p-4 space-y-4">
+                  {vis.type !== 'table' && vis.x && vis.y && (
+                    <h2 className="text-lg font-semibold">
+                      {Array.isArray(vis.y) ? vis.y.join(', ') : vis.y} vs {vis.x}
+                    </h2>
+                  )}
+                  {sql && (
+                    <p className="text-sm break-all font-mono">{sql}</p>
+                  )}
+                  {vis.type === 'table' ? (
+                    <DataTable data={vis.data} />
+                  ) : (
+                    <ChartView
+                      data={vis.data}
+                      chartType={
+                        vis.type as
+                          | 'bar'
+                          | 'line'
+                          | 'scatter'
+                          | 'pie'
+                          | 'doughnut'
+                      }
+                      x={vis.x!}
+                      y={vis.y!}
+                    />
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </MainLayout>
   )
 }
