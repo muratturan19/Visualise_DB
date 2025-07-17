@@ -2,15 +2,15 @@
 
 body {
   min-height: 100vh;
-  font-family: Inter, system-ui, sans-serif;
-  background-color: #f9fafb; /* gray-50 */
-  color: #1f2937; /* gray-800 */
+  font-family: Inter, Roboto, system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #1e293b; /* slate-800 */
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #111827; /* gray-900 */
-    color: #e5e7eb; /* gray-200 */
+    background-color: #36454F; /* charcoal */
+    color: #f9fafb;
   }
 }
 
