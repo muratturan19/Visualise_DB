@@ -24,7 +24,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between h-full px-8">
         <div className="flex items-center gap-3">
           <img src={companyLogo} alt="Company logo" className="w-10 h-10" />
-          <span className="font-bold text-lg text-gray-900 dark:text-white">
+          <span className="font-bold text-lg text-neutral-black dark:text-white">
             Visual DataBase
           </span>
         </div>
@@ -44,7 +44,7 @@ export default function Header() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-neutral-medium text-neutral-dark dark:bg-neutral-dark dark:text-neutral-light"
           >
             <span className="sr-only">Toggle theme</span>
             {theme === 'dark' ? (
@@ -55,27 +55,27 @@ export default function Header() {
           </button>
           <button
             type="button"
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-neutral-medium text-neutral-dark dark:bg-neutral-dark dark:text-neutral-light"
           >
             <span className="sr-only">Notifications</span>
             <BellIcon className="w-5 h-5" />
           </button>
           <button
             type="button"
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-neutral-medium dark:bg-neutral-dark"
             onClick={() => setOpen((v) => !v)}
           >
             <span className="sr-only">User menu</span>
-            <div className="w-7 h-7 rounded-full bg-gray-300 dark:bg-gray-500" />
+            <div className="w-7 h-7 rounded-full bg-neutral-medium dark:bg-neutral-dark" />
           </button>
           {open && (
-            <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded shadow-md z-10">
+            <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-neutral-black text-neutral-dark dark:text-neutral-light rounded shadow-md z-10">
               <button
                 onClick={() => {
                   setOpen(false)
                   // TODO: implement settings behaviour
                 }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-neutral-light dark:hover:bg-neutral-dark"
               >
                 <Cog6ToothIcon className="w-4 h-4" /> Settings
               </button>
