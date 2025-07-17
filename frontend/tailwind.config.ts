@@ -47,6 +47,8 @@ const config: Config = withMT({
           base: '#0f172a',
           foreground: '#f8fafc',
         },
+        'brand-primary': '#1e293b',
+        'brand-secondary': '#334155',
       },
     },
   },

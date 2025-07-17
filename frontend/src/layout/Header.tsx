@@ -12,8 +12,8 @@ export default function Header() {
   ]
 
   return (
-    <header className="bg-gray-100 dark:bg-gray-900 shadow-md">
-      <div className="max-w-7xl mx-auto flex items-center h-16 px-4">
+    <header className="h-20 bg-gradient-to-r from-brand-primary to-brand-secondary shadow-xl">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-full px-8">
         <div className="flex items-center gap-3">
           <img src={companyLogo} alt="Company logo" className="w-10 h-10" />
           <span className="font-bold text-lg text-gray-900 dark:text-white">
