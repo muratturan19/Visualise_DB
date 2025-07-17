@@ -74,7 +74,7 @@ export default function App() {
           <div className="flex gap-2">
             <Button
               type="submit"
-              className="flex-1 text-base text-black dark:text-white"
+              className="flex-1 text-base"
               disabled={loading || !question.trim()}
             >
               {loading ? 'Çalışıyor...' : 'ASK'}
@@ -84,7 +84,6 @@ export default function App() {
               variant="secondary"
               onClick={handleSave}
               disabled={!question.trim()}
-              className="text-black dark:text-white"
             >
               Save
             </Button>
@@ -92,7 +91,6 @@ export default function App() {
               type="button"
               variant="secondary"
               onClick={handleLoad}
-              className="text-black dark:text-white"
             >
               Load
             </Button>
