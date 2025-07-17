@@ -251,7 +251,8 @@ export default function DataTable({ data }: Props) {
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1"
+            className="px-2 py-1 text-black dark:text-white"
+            variant="secondary"
           >
             Prev
           </Button>
@@ -259,7 +260,8 @@ export default function DataTable({ data }: Props) {
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1"
+            className="px-2 py-1 text-black dark:text-white"
+            variant="secondary"
           >
             Next
           </Button>
