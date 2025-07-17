@@ -68,7 +68,7 @@ function App() {
         Visualise DB
       </Typography>
       <div className="mx-auto grid max-w-7xl gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="order-last lg:col-span-1 lg:order-last">
           <CardHeader shadow={false} floated={false} className="p-4">
             <Typography variant="h6">Schema Explorer</Typography>
           </CardHeader>
@@ -77,7 +77,7 @@ function App() {
           </CardBody>
         </Card>
 
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 lg:col-span-2">
           <Card>
             <CardHeader shadow={false} floated={false} className="p-4">
               <Typography variant="h6">Query</Typography>
