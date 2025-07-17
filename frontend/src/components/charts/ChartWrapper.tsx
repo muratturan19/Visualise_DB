@@ -57,7 +57,13 @@ ChartJS.register(
 )
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const defaultPalette = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#6366f1']
+export const defaultPalette = [
+  '#3b82f6',
+  '#10b981',
+  '#ef4444',
+  '#f59e0b',
+  '#334155',
+]
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const baseOptions = {

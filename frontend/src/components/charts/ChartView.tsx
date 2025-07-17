@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import type { Chart as ChartJS } from 'chart.js'
 import ChartWrapper, { baseOptions, defaultPalette } from './ChartWrapper'
+import Button from '../ui/Button'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -142,20 +143,12 @@ export default function ChartView({ data, chartType, x, y }: Props) {
             onChange={(e) => setEnd(Number(e.target.value))}
           />
         </label>
-        <button
-          type="button"
-          onClick={handleExportPNG}
-          className="ml-auto px-2 py-1 rounded bg-blue-500 text-white"
-        >
+        <Button onClick={handleExportPNG} className="ml-auto">
           PNG
-        </button>
-        <button
-          type="button"
-          onClick={handleExportPDF}
-          className="px-2 py-1 rounded bg-green-600 text-white"
-        >
+        </Button>
+        <Button variant="secondary" onClick={handleExportPDF}>
           PDF
-        </button>
+        </Button>
       </div>
     </div>
   )
