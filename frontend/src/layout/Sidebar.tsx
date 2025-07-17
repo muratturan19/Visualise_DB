@@ -1,5 +1,12 @@
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  HomeIcon,
+  DocumentMagnifyingGlassIcon,
+  DocumentChartBarIcon,
+  ChartBarIcon,
+} from '@heroicons/react/24/outline'
 import SchemaExplorer from '../components/SchemaExplorer'
 
 interface Props {
@@ -9,13 +16,15 @@ interface Props {
 export default function Sidebar({ onFieldSelect }: Props) {
   const [open, setOpen] = useState(true)
   const nav = [
-    { label: 'Queries', href: '#' },
-    { label: 'Reports', href: '#' },
+    { label: 'Home', href: '#', icon: HomeIcon },
+    { label: 'Queries', href: '#', icon: DocumentMagnifyingGlassIcon },
+    { label: 'Reports', href: '#', icon: DocumentChartBarIcon },
+    { label: 'Analytics', href: '#', icon: ChartBarIcon },
   ]
 
   return (
     <aside
-      className={`bg-gray-50 dark:bg-gray-900 border-r dark:border-gray-700 overflow-y-auto transition-all duration-300 ${open ? 'w-64' : 'w-16'}`}
+      className={`bg-gray-50 dark:bg-gray-900 border-r dark:border-gray-700 overflow-y-auto transition-all duration-300 ${open ? 'w-[280px]' : 'w-16'}`}
     >
       <div className="flex items-center justify-between p-2">
         {open && <span className="font-semibold">Menu</span>}
@@ -31,19 +40,18 @@ export default function Sidebar({ onFieldSelect }: Props) {
           )}
         </button>
       </div>
-      {open && (
-        <nav className="px-2 space-y-1 text-sm">
-          {nav.map((n) => (
-            <a
-              key={n.label}
-              href={n.href}
-              className="block px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              {n.label}
-            </a>
-          ))}
-        </nav>
-      )}
+      <nav className="px-2 space-y-1 text-sm">
+        {nav.map((n) => (
+          <a
+            key={n.label}
+            href={n.href}
+            className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            {n.icon && <n.icon className="w-5 h-5" />}
+            {open && n.label}
+          </a>
+        ))}
+      </nav>
       {open && (
         <div className="p-2">
           <SchemaExplorer onSelect={onFieldSelect} />

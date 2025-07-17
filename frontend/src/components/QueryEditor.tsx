@@ -1,5 +1,7 @@
 import CodeMirror from '@uiw/react-codemirror'
 import { sql } from '@codemirror/lang-sql'
+import { lineNumbers } from '@codemirror/view'
+import { autocompletion } from '@codemirror/autocomplete'
 import { useQueryHistory } from '../hooks/useQueryHistory'
 
 interface Props {
@@ -17,7 +19,7 @@ export default function QueryEditor({ value, onChange, error, disabled }: Props)
       <CodeMirror
         value={value}
         height="120px"
-        extensions={[sql()]}
+        extensions={[sql(), lineNumbers(), autocompletion()]}
         onChange={(val) => onChange(val)}
         editable={!disabled}
         className={`border rounded ${error ? 'border-red-500' : 'border-gray-300'}`}

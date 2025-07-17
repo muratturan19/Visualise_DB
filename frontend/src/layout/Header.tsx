@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import companyLogo from '../assets/react.svg'
-import { Cog6ToothIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
+import {
+  Cog6ToothIcon,
+  MoonIcon,
+  SunIcon,
+  BellIcon,
+} from '@heroicons/react/24/outline'
+import SearchBar from '../components/SearchBar'
 import { useTheme } from '../hooks/useTheme'
 
 export default function Header() {
@@ -8,7 +14,9 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme()
   const nav = [
     { label: 'Home', href: '#' },
-    { label: 'History', href: '#' },
+    { label: 'Queries', href: '#' },
+    { label: 'Reports', href: '#' },
+    { label: 'Analytics', href: '#' },
   ]
 
   return (
@@ -32,6 +40,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-3 relative">
+          <SearchBar />
           <button
             type="button"
             onClick={toggleTheme}
@@ -43,6 +52,13 @@ export default function Header() {
             ) : (
               <MoonIcon className="w-5 h-5" />
             )}
+          </button>
+          <button
+            type="button"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          >
+            <span className="sr-only">Notifications</span>
+            <BellIcon className="w-5 h-5" />
           </button>
           <button
             type="button"
