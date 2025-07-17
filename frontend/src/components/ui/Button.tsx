@@ -11,16 +11,15 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'px-4 py-2 rounded font-medium focus:outline-none transition-colors'
+    'px-8 py-3 rounded-lg font-medium focus:outline-none transition-colors shadow-lg hover:shadow-xl'
   const variants: Record<string, string> = {
     // Provide a fallback to Tailwind's blue palette in case custom colors from
     // tailwind.config.ts are not available.
     primary:
-      'bg-primary bg-blue-600 text-white hover:bg-primary-light hover:bg-blue-700',
-    // Fallback to Tailwind's built-in green classes in case custom colors
-    // from tailwind.config.ts are not generated.
+      'bg-gradient-to-r from-brand-accent to-blue-700 text-white',
+    // Secondary buttons get a neutral style for light and dark modes.
     secondary:
-      'bg-secondary bg-green-600 text-white hover:bg-secondary-light hover:bg-green-700',
+      'bg-neutral-light dark:bg-neutral-dark border border-neutral-medium text-neutral-dark dark:text-neutral-light hover:bg-neutral-medium/50',
   }
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : ''
   return (

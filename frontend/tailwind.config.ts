@@ -49,6 +49,7 @@ const config: Config = withMT({
         },
         'brand-primary': '#1e293b',
         'brand-secondary': '#334155',
+        'brand-accent': '#3b82f6',
       },
     },
   },
