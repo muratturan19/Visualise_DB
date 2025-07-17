@@ -8,8 +8,8 @@ body {
 }
 
 .dark body {
-  background-color: #36454F; /* charcoal */
-  color: #f9fafb;
+  background-color: #0f172a; /* near-black brand */
+  color: #f9fafc;
 }
 
 @layer utilities {
