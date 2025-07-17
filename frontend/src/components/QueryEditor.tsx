@@ -22,13 +22,13 @@ export default function QueryEditor({ value, onChange, error, disabled }: Props)
         extensions={[sql(), lineNumbers(), autocompletion()]}
         onChange={(val) => onChange(val)}
         editable={!disabled}
-        className={`border rounded ${error ? 'border-red-500' : 'border-gray-300'}`}
+        className={`border rounded ${error ? 'border-red-500' : 'border-neutral-medium'}`}
       />
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {history.length > 0 && (
         <select
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded border border-gray-300 dark:border-gray-600 p-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="w-full rounded border border-neutral-medium dark:border-neutral-dark p-1 bg-white dark:bg-neutral-dark text-neutral-black dark:text-neutral-light"
         >
           <option value="">Recent Queries</option>
           {history.map((h, idx) => (
