@@ -14,7 +14,7 @@ export default function Button({
     'px-8 py-3 rounded-lg font-medium focus:outline-none transition-colors shadow-lg hover:shadow-xl'
   const variants: Record<string, string> = {
     primary:
-      'bg-gradient-accent text-white',
+      'bg-brand-accent text-white',
     secondary:
       'bg-neutral-light dark:bg-brand-secondary border border-neutral-medium text-brand-secondary dark:text-neutral-light hover:bg-neutral-medium/50',
   }
