@@ -24,14 +24,14 @@ export default function Sidebar({ onFieldSelect }: Props) {
 
   return (
     <aside
-      className={`bg-slate-50 dark:bg-slate-900 border-r dark:border-slate-500 overflow-y-auto transition-all duration-300 ${open ? 'w-[280px]' : 'w-16'}`}
+      className={`bg-blue-50 dark:bg-blue-950 border-r border-blue-200 dark:border-blue-900 overflow-y-auto transition-all duration-300 ${open ? 'w-[280px]' : 'w-16'}`}
     >
       <div className="flex items-center justify-between p-2">
-        {open && <span className="font-semibold">Menu</span>}
+        {open && <span className="font-semibold text-blue-900 dark:text-blue-100">Menu</span>}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-500"
+          className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-800"
         >
           {open ? (
             <ChevronLeftIcon className="w-5 h-5" />
@@ -45,9 +45,9 @@ export default function Sidebar({ onFieldSelect }: Props) {
           <a
             key={n.label}
             href={n.href}
-            className="flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-500"
+            className="flex items-center gap-2 px-2 py-1 rounded text-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-800"
           >
-            {n.icon && <n.icon className="w-5 h-5" />}
+            {n.icon && <n.icon className="w-5 h-5 text-blue-400" />}
             {open && n.label}
           </a>
         ))}

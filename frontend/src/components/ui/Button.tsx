@@ -13,9 +13,9 @@ export default function Button({
   const base =
     'px-8 py-3 rounded-lg font-medium focus:outline-none transition-colors shadow-lg hover:shadow-xl'
   const variants: Record<string, string> = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
     secondary:
-      'bg-gray-100 dark:bg-slate-700 border border-slate-200 text-slate-700 dark:text-slate-100 hover:bg-gray-200 dark:hover:bg-slate-600',
+      'bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 border border-blue-300 dark:border-blue-600 text-blue-900 dark:text-blue-100',
   }
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : ''
   return (
