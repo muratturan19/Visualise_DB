@@ -2,7 +2,9 @@ import CodeMirror from '@uiw/react-codemirror'
 import { sql } from '@codemirror/lang-sql'
 import { lineNumbers } from '@codemirror/view'
 import { autocompletion } from '@codemirror/autocomplete'
+import { oneDark } from '@codemirror/theme-one-dark'
 import { useQueryHistory } from '../hooks/useQueryHistory'
+import { useTheme } from '../hooks/useTheme'
 
 interface Props {
   value: string
@@ -13,6 +15,7 @@ interface Props {
 
 export default function QueryEditor({ value, onChange, error, disabled }: Props) {
   const { history } = useQueryHistory()
+  const { theme } = useTheme()
 
   return (
     <div className="space-y-2">
@@ -20,6 +23,7 @@ export default function QueryEditor({ value, onChange, error, disabled }: Props)
         value={value}
         height="120px"
         extensions={[sql(), lineNumbers(), autocompletion()]}
+        theme={theme === 'dark' ? oneDark : 'light'}
         onChange={(val) => onChange(val)}
         editable={!disabled}
         className={`border rounded ${error ? 'border-red-500' : 'border-blue-200 dark:border-blue-700'}`}
