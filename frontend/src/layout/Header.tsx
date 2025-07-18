@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <header className="h-20 bg-gradient-to-r from-slate-800 to-slate-600 shadow-xl">
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-full px-8">
+      <div className="w-full flex items-center justify-between h-full pl-2 pr-8">
         <div className="flex items-center gap-3">
           <img src={companyLogo} alt="Company logo" className="w-10 h-10" />
           <span className="font-bold text-lg text-slate-900 dark:text-white">
