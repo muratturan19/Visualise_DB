@@ -20,7 +20,7 @@ export default function Header() {
   ]
 
   return (
-    <header className="h-20 bg-gradient-to-r from-slate-800 to-slate-600 shadow-xl">
+    <header className="h-20 bg-gradient-to-r from-blue-50 to-blue-100 shadow-xl">
       <div className="w-full flex items-center justify-between h-full pl-2 pr-8">
         <div className="flex items-center gap-3">
           <img src={companyLogo} alt="Company logo" className="w-10 h-10" />
