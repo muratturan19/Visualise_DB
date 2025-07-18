@@ -6,7 +6,7 @@ export default function Card({ className = '', ...props }: CardProps) {
   return (
     <div
       {...props}
-      className={`bg-white dark:bg-slate-700 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-500 hover:shadow-2xl transition-shadow ${className}`}
+      className={`bg-white dark:bg-blue-900 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-700 hover:shadow-2xl transition-shadow ${className}`}
     />
   )
 }

@@ -44,14 +44,14 @@ export default function SchemaExplorer({ onSelect }: Props) {
   })
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 overflow-y-auto max-h-[80vh] w-full">
-      <h3 className="font-semibold mb-2 text-lg">Schema Explorer</h3>
+    <div className="bg-white dark:bg-blue-900 rounded-lg shadow p-2 overflow-y-auto max-h-[80vh] w-full">
+      <h3 className="font-semibold mb-2 text-lg text-blue-700 dark:text-blue-300">Schema Explorer</h3>
       <input
         type="text"
         placeholder="Search"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
-        className="w-full mb-2 rounded border border-gray-300 dark:border-gray-600 p-1"
+        className="w-full mb-2 rounded border border-blue-200 dark:border-blue-700 bg-blue-100 dark:bg-blue-800 placeholder-blue-400 p-1"
       />
       <div className="space-y-2">
         {filtered.map((tbl) => (
@@ -61,7 +61,7 @@ export default function SchemaExplorer({ onSelect }: Props) {
               {(tbl.columns ?? []).map((col) => (
                 <li
                   key={col.name}
-                  className="cursor-pointer hover:text-primary"
+                  className="cursor-pointer hover:text-blue-600 dark:hover:text-blue-300"
                   title={col.fk ? `FK -> ${col.fk.table}.${col.fk.column}` : ''}
                   onClick={() => onSelect(`${tbl.name}.${col.name}`)}
                 >

@@ -96,7 +96,7 @@ export default function DataTable({ data }: Props) {
           return (
             <div className={`flex items-center gap-1 ${colorClass}`}>
               {isCustomerField && (
-                <UserIcon className="w-4 h-4 text-slate-500" />
+                <UserIcon className="w-4 h-4 text-blue-400" />
               )}
               {formatValue(val, row.original)}
             </div>
@@ -198,15 +198,15 @@ export default function DataTable({ data }: Props) {
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm border divide-y divide-slate-200 dark:divide-slate-500">
-          <thead className="bg-slate-50 dark:bg-slate-900">
+        <table className="min-w-full text-sm border divide-y divide-blue-200 dark:divide-blue-700">
+          <thead className="bg-blue-50 dark:bg-blue-900">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="px-2 py-1 border border-slate-200 dark:border-slate-500 text-left font-semibold select-none cursor-pointer"
+                  className="px-2 py-1 border border-blue-200 dark:border-blue-700 text-left font-semibold select-none cursor-pointer"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -230,12 +230,12 @@ export default function DataTable({ data }: Props) {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="even:bg-slate-50 dark:even:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-500"
+                className="even:bg-blue-50 dark:even:bg-blue-900 hover:bg-blue-100 dark:hover:bg-blue-800"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-2 py-1 border border-slate-200 dark:border-slate-500"
+                    className="px-2 py-1 border border-blue-200 dark:border-blue-700"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -251,7 +251,7 @@ export default function DataTable({ data }: Props) {
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1 text-black dark:text-white"
+            className="px-2 py-1 text-blue-900 dark:text-blue-100"
             variant="secondary"
           >
             Prev
@@ -260,7 +260,7 @@ export default function DataTable({ data }: Props) {
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1 text-black dark:text-white"
+            className="px-2 py-1 text-blue-900 dark:text-blue-100"
             variant="secondary"
           >
             Next

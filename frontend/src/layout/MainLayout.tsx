@@ -13,7 +13,7 @@ export default function MainLayout({ children, onFieldSelect }: Props) {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar onFieldSelect={onFieldSelect} />
-        <main className="flex-1 overflow-y-auto p-4 bg-white dark:bg-slate-900">
+        <main className="flex-1 overflow-y-auto p-4 bg-blue-50 dark:bg-blue-950">
           {children}
         </main>
       </div>
