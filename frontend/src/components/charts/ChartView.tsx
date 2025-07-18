@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import type { Chart as ChartJS } from 'chart.js'
 import ChartWrapper, { baseOptions, defaultPalette } from './ChartWrapper'
 import Button from '../ui/Button'
+import { useTheme } from '../../hooks/useTheme'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +16,7 @@ export default function ChartView({ data, chartType, x, y }: Props) {
   const chartRef = useRef<ChartJS>(null)
   const [start, setStart] = useState(0)
   const [end, setEnd] = useState(data.length)
+  const { theme } = useTheme()
 
   if (!data || data.length === 0) {
     return <p>No results for chart.</p>
@@ -29,6 +31,9 @@ export default function ChartView({ data, chartType, x, y }: Props) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+
+  const textColor = theme === 'dark' ? '#dbeafe' : '#1e3a8a'
+  const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0'
 
   let yKeys = Array.isArray(y) ? y : y.split(',').map((s) => s.trim())
   if (!yKeys[0]) {
@@ -48,7 +53,7 @@ export default function ChartView({ data, chartType, x, y }: Props) {
     ...baseOptions,
     plugins: {
       ...baseOptions.plugins,
-      title: { display: true, text: yKeys.join(' vs ') },
+      title: { display: true, text: yKeys.join(' vs '), color: textColor },
       tooltip: {
         callbacks: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,13 +68,20 @@ export default function ChartView({ data, chartType, x, y }: Props) {
         start,
         end,
       },
+      legend: { ...baseOptions.plugins.legend, labels: { color: textColor } },
     },
     scales: {
       y: {
         ticks: {
+          color: textColor,
           callback: (val: string | number) =>
             numberFormatter.format(Number(val)) + (unit ? ' ' + unit : ''),
         },
+        grid: { color: gridColor },
+      },
+      x: {
+        ticks: { color: textColor },
+        grid: { color: gridColor },
       },
     },
   }
@@ -119,7 +131,9 @@ export default function ChartView({ data, chartType, x, y }: Props) {
 
   return (
     <div className="space-y-2">
-      <ChartWrapper ref={chartRef} type={chartType} data={chartData} options={options} />
+      <div className="rounded p-2 bg-white dark:bg-blue-900">
+        <ChartWrapper ref={chartRef} type={chartType} data={chartData} options={options} />
+      </div>
       <div className="flex gap-2 items-center text-sm">
         <label>
           Start
