@@ -12,6 +12,11 @@ body {
   color: #dbeafe; /* blue-100 */
 }
 
+/* Increase font size inside the query editor */
+.cm-editor {
+  font-size: 1.125rem;
+}
+
 @layer utilities {
   @keyframes progress-indeterminate {
     from { transform: translateX(-100%); }
